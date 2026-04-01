@@ -179,7 +179,7 @@ class RomPatcher {
                 if (screen[row * 40 + col] !== 32) { hasContent = true; break; }
             }
             if (hasContent) {
-                cursorRow = Math.min(row + 3, 24);
+                cursorRow = Math.min(row + 1, 24);
                 break;
             }
         }

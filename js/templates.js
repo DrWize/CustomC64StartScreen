@@ -1,5 +1,6 @@
 // C64 Boot Screen Editor - Pre-made Boot Screen Templates
 // Each template defines: screen codes, color data, border color, background color
+// NOTE: Templates should NOT include "READY." — BASIC prints that automatically at boot.
 
 const Templates = (() => {
 
@@ -40,7 +41,6 @@ const Templates = (() => {
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
         setText(screen, color, 3, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 14);
-        setText(screen, color, 5, 0, 'READY.', 14);
 
         return {
             name: 'Classic C64',
@@ -58,7 +58,6 @@ const Templates = (() => {
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 15);
         setText(screen, color, 3, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
-        setText(screen, color, 5, 0, 'READY.', 15);
 
         return {
             name: 'Dark Mode',
@@ -76,7 +75,6 @@ const Templates = (() => {
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 13);
         setText(screen, color, 3, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 5);
-        setText(screen, color, 5, 0, 'READY.', 13);
 
         return {
             name: 'Hacker Green',
@@ -102,13 +100,9 @@ const Templates = (() => {
             color[4 * 40 + col] = 14;   // light blue
         }
 
-        // C= text
         setText(screen, color, 7, 12, 'COMMODORE 64', 1);
-
-        // Bottom text
         setText(screen, color, 10, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
         setText(screen, color, 12, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 14);
-        setText(screen, color, 14, 0, 'READY.', 14);
 
         return {
             name: 'C= Logo Modern',
@@ -124,12 +118,11 @@ const Templates = (() => {
         const screen = fill(32);
         const color = fill(1);
 
-        // Rainbow stripes across the top using full blocks
-        const rainbowColors = [2, 8, 7, 5, 14, 4]; // red, orange, yellow, green, light blue, purple
+        const rainbowColors = [2, 8, 7, 5, 14, 4];
         for (let i = 0; i < rainbowColors.length; i++) {
             for (let col = 0; col < 40; col++) {
                 const idx = i * 40 + col;
-                screen[idx] = 160; // reverse space = full block
+                screen[idx] = 160;
                 color[idx] = rainbowColors[i];
             }
         }
@@ -137,7 +130,6 @@ const Templates = (() => {
         setText(screen, color, 8, 14, 'COMMODORE 64', 1);
         setText(screen, color, 10, 4, '**** COMMODORE 64 BASIC V2 ****', 15);
         setText(screen, color, 12, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
-        setText(screen, color, 14, 0, 'READY.', 1);
 
         return {
             name: 'Rainbow',
@@ -161,7 +153,6 @@ const Templates = (() => {
         setText(screen, color, 6, 0, 'BASIC V2 LOADED                  [ OK ]', 8);
         setText(screen, color, 7, 0, '38911 BASIC BYTES FREE', 8);
         setText(screen, color, 9, 0, '========================================', 8);
-        setText(screen, color, 11, 0, 'READY.', 8);
 
         // Highlight [ OK ] in green
         for (let row = 4; row <= 6; row++) {
@@ -192,22 +183,6 @@ const Templates = (() => {
         };
     }
 
-    // ── Template: Just Ready ────────────────────────────────────────────
-    function justReady() {
-        const screen = fill(32);
-        const color = fill(15);
-
-        setText(screen, color, 12, 17, 'READY.', 15);
-
-        return {
-            name: 'Just Ready',
-            description: 'Nothing but READY',
-            screen, color,
-            borderColor: 0,
-            bgColor: 0,
-        };
-    }
-
     // ── Template: Underline ─────────────────────────────────────────────
     function underline() {
         const screen = fill(32);
@@ -215,13 +190,12 @@ const Templates = (() => {
 
         // Thin line at row 10
         for (let c = 4; c < 36; c++) {
-            screen[10 * 40 + c] = 64; // horizontal line char
-            color[10 * 40 + c] = 12;  // grey
+            screen[10 * 40 + c] = 64;
+            color[10 * 40 + c] = 12;
         }
 
         setText(screen, color, 12, 4, '**** COMMODORE 64 BASIC V2 ****', 1);
         setText(screen, color, 14, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
-        setText(screen, color, 16, 0, 'READY.', 1);
 
         return {
             name: 'Underline',
@@ -237,14 +211,13 @@ const Templates = (() => {
         const screen = fill(32);
         const color = fill(1);
 
-        // TV test pattern: 8 vertical bars across rows 1-9
         const barColors = [1, 7, 3, 5, 4, 2, 6, 0];
         const barWidth = 5;
         for (let i = 0; i < 8; i++) {
             for (let r = 1; r <= 9; r++) {
                 for (let c = 0; c < barWidth; c++) {
                     const idx = r * 40 + i * barWidth + c;
-                    screen[idx] = 160; // full block
+                    screen[idx] = 160;
                     color[idx] = barColors[i];
                 }
             }
@@ -252,7 +225,6 @@ const Templates = (() => {
 
         setText(screen, color, 12, 4, '**** COMMODORE 64 BASIC V2 ****', 1);
         setText(screen, color, 14, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
-        setText(screen, color, 16, 0, 'READY.', 1);
 
         return {
             name: 'Color Bars',
@@ -268,7 +240,6 @@ const Templates = (() => {
         const screen = fill(32);
         const color = fill(14);
 
-        // Color stripe: red/white/blue Commodore style across top
         for (let c = 0; c < 40; c++) {
             screen[1 * 40 + c] = 160; color[1 * 40 + c] = 2;
             screen[2 * 40 + c] = 160; color[2 * 40 + c] = 8;
@@ -278,7 +249,6 @@ const Templates = (() => {
         setText(screen, color, 5, 8, 'COMMODORE 64 ULTIMATE', 1);
         setText(screen, color, 8, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
         setText(screen, color, 10, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 14);
-        setText(screen, color, 12, 0, 'READY.', 14);
 
         return {
             name: 'C64 Ultimate',
@@ -294,18 +264,15 @@ const Templates = (() => {
         const screen = fill(32);
         const color = fill(12);
 
-        // Thin accent line
         for (let c = 0; c < 40; c++) {
-            screen[3 * 40 + c] = 64; // horizontal line
+            screen[3 * 40 + c] = 64;
             color[3 * 40 + c] = 14;
         }
 
         setText(screen, color, 1, 9, 'COMMODORE 64 ULTIMATE', 1);
         setText(screen, color, 2, 15, 'EDITION', 12);
-
         setText(screen, color, 5, 4, '**** COMMODORE 64 BASIC V2 ****', 15);
         setText(screen, color, 7, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
-        setText(screen, color, 9, 0, 'READY.', 1);
 
         return {
             name: 'C64 Ultimate Dark',
@@ -321,7 +288,6 @@ const Templates = (() => {
         const screen = fill(32);
         const color = fill(7);
 
-        // Gold border lines top and bottom
         for (let c = 0; c < 40; c++) {
             screen[0 * 40 + c] = 160; color[0 * 40 + c] = 7;
             screen[1 * 40 + c] = 160; color[1 * 40 + c] = 8;
@@ -331,10 +297,8 @@ const Templates = (() => {
 
         setText(screen, color, 4, 9, 'COMMODORE 64 ULTIMATE', 7);
         setText(screen, color, 5, 14, 'FOUNDERS', 8);
-
         setText(screen, color, 8, 4, '**** COMMODORE 64 BASIC V2 ****', 7);
         setText(screen, color, 10, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 8);
-        setText(screen, color, 12, 0, 'READY.', 7);
 
         return {
             name: 'C64 Ultimate Gold',
@@ -350,7 +314,6 @@ const Templates = (() => {
         const screen = fill(32);
         const color = fill(14);
 
-        // Multi-color "COMMODORE 64 ULTIMATE" with each letter a different color
         const title = 'COMMODORE 64 ULTIMATE';
         const titleColors = [2, 8, 7, 13, 5, 3, 14, 4, 2, 8, 7, 13, 5, 3, 14, 4, 2, 8, 7, 13, 5];
         const startCol = Math.floor((40 - title.length) / 2);
@@ -360,7 +323,6 @@ const Templates = (() => {
             color[idx] = titleColors[i % titleColors.length];
         }
 
-        // Color dots scattered
         const rng = (s) => { s = (s * 1103515245 + 12345) & 0x7FFFFFFF; return s; };
         let seed = 77;
         for (let i = 0; i < 30; i++) {
@@ -370,7 +332,7 @@ const Templates = (() => {
             const c = seed % 40;
             const idx = r * 40 + c;
             if (screen[idx] === 32) {
-                screen[idx] = 46; // dot
+                screen[idx] = 46;
                 seed = rng(seed);
                 color[idx] = [2, 8, 7, 5, 3, 14, 4][seed % 7];
             }
@@ -378,7 +340,6 @@ const Templates = (() => {
 
         setText(screen, color, 6, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
         setText(screen, color, 8, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 15);
-        setText(screen, color, 10, 0, 'READY.', 1);
 
         return {
             name: 'C64 Ultimate Starlight',
@@ -413,27 +374,21 @@ const Templates = (() => {
             const fw = 32, fh = 9, fx = 4, fy = 1;
 
             if (flagDef.type === 'h-stripes') {
-                // Horizontal stripes: array of [color, rowCount]
                 let row = 0;
                 for (const [c, h] of flagDef.stripes) {
                     fillBlock(screen, color, fy + row, fx, h, fw, B, c);
                     row += h;
                 }
             } else if (flagDef.type === 'v-stripes') {
-                // Vertical stripes: array of [color, colCount]
                 let col = 0;
                 for (const [c, w] of flagDef.stripes) {
                     fillBlock(screen, color, fy, fx + col, fh, w, B, c);
                     col += w;
                 }
             } else if (flagDef.type === 'cross') {
-                // Nordic cross: bg color, cross color, optional outline
                 fillBlock(screen, color, fy, fx, fh, fw, B, flagDef.bg);
-                // Horizontal bar
                 fillBlock(screen, color, fy + 3, fx, flagDef.crossH || 3, fw, B, flagDef.cross);
-                // Vertical bar (offset left like Nordic flags)
                 fillBlock(screen, color, fy, fx + 10, fh, flagDef.crossW || 3, B, flagDef.cross);
-                // Inner cross for flags like Norway
                 if (flagDef.innerCross !== undefined) {
                     fillBlock(screen, color, fy + 4, fx, 1, fw, B, flagDef.innerCross);
                     fillBlock(screen, color, fy, fx + 11, fh, 1, B, flagDef.innerCross);
@@ -442,13 +397,10 @@ const Templates = (() => {
                 flagDef.draw(screen, color, B, fy, fx, fh, fw);
             }
 
-            // Boot text below flag
+            // Country name + boot text below flag (no READY. — BASIC handles that)
+            setText(screen, color, 11, Math.floor((40 - name.length) / 2), name, 1);
             setText(screen, color, 12, 4, '**** COMMODORE 64 BASIC V2 ****', 1);
             setText(screen, color, 14, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 15);
-            setText(screen, color, 16, 0, 'READY.', 1);
-
-            // Country name centered above READY
-            setText(screen, color, 11, Math.floor((40 - name.length) / 2), name, 1);
 
             return {
                 name, description, screen, color,
@@ -459,80 +411,65 @@ const Templates = (() => {
         };
     }
 
-    // ── Flag: Sweden ────────────────────────────────────────────────────
+    // ── Flag definitions ────────────────────────────────────────────────
     const flagSweden = makeFlag('Sweden', 'Swedish flag', {
         type: 'cross', bg: 6, cross: 7, crossH: 3, crossW: 3
     }, 6, 0);
 
-    // ── Flag: Norway ────────────────────────────────────────────────────
     const flagNorway = makeFlag('Norway', 'Norwegian flag', {
         type: 'cross', bg: 2, cross: 1, crossH: 3, crossW: 3, innerCross: 6
     }, 2, 0);
 
-    // ── Flag: Finland ───────────────────────────────────────────────────
     const flagFinland = makeFlag('Finland', 'Finnish flag', {
         type: 'cross', bg: 1, cross: 6, crossH: 3, crossW: 3
     }, 6, 0);
 
-    // ── Flag: Denmark ───────────────────────────────────────────────────
     const flagDenmark = makeFlag('Denmark', 'Danish flag', {
         type: 'cross', bg: 2, cross: 1, crossH: 1, crossW: 1
     }, 2, 0);
 
-    // ── Flag: Germany ───────────────────────────────────────────────────
     const flagGermany = makeFlag('Germany', 'German flag', {
         type: 'h-stripes', stripes: [[0, 3], [2, 3], [7, 3]]
     }, 0, 0);
 
-    // ── Flag: France ────────────────────────────────────────────────────
     const flagFrance = makeFlag('France', 'French tricolour', {
         type: 'v-stripes', stripes: [[6, 11], [1, 10], [2, 11]]
     }, 6, 0);
 
-    // ── Flag: Italy ─────────────────────────────────────────────────────
     const flagItaly = makeFlag('Italy', 'Italian tricolour', {
         type: 'v-stripes', stripes: [[5, 11], [1, 10], [2, 11]]
     }, 5, 0);
 
-    // ── Flag: Netherlands ───────────────────────────────────────────────
     const flagNetherlands = makeFlag('Netherlands', 'Dutch flag', {
         type: 'h-stripes', stripes: [[2, 3], [1, 3], [6, 3]]
     }, 6, 0);
 
-    // ── Flag: Ukraine ───────────────────────────────────────────────────
     const flagUkraine = makeFlag('Ukraine', 'Ukrainian flag', {
         type: 'h-stripes', stripes: [[14, 5], [7, 4]]
     }, 14, 0);
 
-    // ── Flag: USA ───────────────────────────────────────────────────────
     const flagUSA = makeFlag('USA', 'American flag', {
         type: 'custom',
         draw(screen, color, B, fy, fx, fh, fw) {
-            // Red and white stripes
             for (let r = 0; r < fh; r++) {
-                const stripeColor = (r % 2 === 0) ? 2 : 1; // red, white alternating
+                const stripeColor = (r % 2 === 0) ? 2 : 1;
                 fillBlock(screen, color, fy + r, fx, 1, fw, B, stripeColor);
             }
-            // Blue canton (upper left)
             fillBlock(screen, color, fy, fx, 5, 14, B, 6);
-            // Stars (dots) in canton
             for (let r = 0; r < 5; r++) {
                 for (let c = (r % 2); c < 14; c += 3) {
                     const idx = (fy + r) * 40 + fx + c;
-                    screen[idx] = 46; // dot
-                    color[idx] = 1;   // white
+                    screen[idx] = 46;
+                    color[idx] = 1;
                 }
             }
         }
     }, 6, 0);
 
-    // ── Flag: UK ────────────────────────────────────────────────────────
     const flagUK = makeFlag('United Kingdom', 'Union Jack', {
         type: 'custom',
         draw(screen, color, B, fy, fx, fh, fw) {
-            // Blue background
             fillBlock(screen, color, fy, fx, fh, fw, B, 6);
-            // White diagonal cross
             for (let r = 0; r < fh; r++) {
                 const c1 = Math.round(r * fw / fh);
                 const c2 = fw - 1 - c1;
@@ -541,29 +478,23 @@ const Templates = (() => {
                     if (c2+w >= 0 && c2+w < fw) { screen[(fy+r)*40+fx+c2+w] = B; color[(fy+r)*40+fx+c2+w] = 1; }
                 }
             }
-            // Red diagonal (thinner, on top)
             for (let r = 0; r < fh; r++) {
                 const c1 = Math.round(r * fw / fh);
                 const c2 = fw - 1 - c1;
                 screen[(fy+r)*40+fx+c1] = B; color[(fy+r)*40+fx+c1] = 2;
                 screen[(fy+r)*40+fx+c2] = B; color[(fy+r)*40+fx+c2] = 2;
             }
-            // White cross (thick)
             fillBlock(screen, color, fy + 3, fx, 3, fw, B, 1);
             fillBlock(screen, color, fy, fx + 14, fh, 4, B, 1);
-            // Red cross (center)
             fillBlock(screen, color, fy + 4, fx, 1, fw, B, 2);
             fillBlock(screen, color, fy, fx + 15, fh, 2, B, 2);
         }
     }, 6, 0);
 
-    // ── Flag: Japan ─────────────────────────────────────────────────────
     const flagJapan = makeFlag('Japan', 'Japanese flag', {
         type: 'custom',
         draw(screen, color, B, fy, fx, fh, fw) {
-            // White background
             fillBlock(screen, color, fy, fx, fh, fw, B, 1);
-            // Red circle (approximated with blocks)
             const cx = 16, cy = 4, radius = 3;
             for (let r = 0; r < fh; r++) {
                 for (let c = 0; c < fw; c++) {
@@ -578,13 +509,10 @@ const Templates = (() => {
         }
     }, 1, 0);
 
-    // ── Flag: Brazil ────────────────────────────────────────────────────
     const flagBrazil = makeFlag('Brazil', 'Brazilian flag', {
         type: 'custom',
         draw(screen, color, B, fy, fx, fh, fw) {
-            // Green background
             fillBlock(screen, color, fy, fx, fh, fw, B, 5);
-            // Yellow diamond
             const cx = 16, cy = 4;
             for (let r = 0; r < fh; r++) {
                 const dy = Math.abs(r - cy);
@@ -593,7 +521,6 @@ const Templates = (() => {
                     fillBlock(screen, color, fy + r, fx + cx - halfW, 1, halfW * 2 + 1, B, 7);
                 }
             }
-            // Blue circle in center
             for (let r = 0; r < fh; r++) {
                 for (let c = 0; c < fw; c++) {
                     const dx = (c - cx) * 0.55;
@@ -616,7 +543,6 @@ const Templates = (() => {
         rainbow,
         retroTerminal,
         blank,
-        justReady,
         underline,
         colorBars,
         ultimate,
