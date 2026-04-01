@@ -403,14 +403,16 @@ class RomPatcher {
         const compColor = this._rleCompress(color);
 
         // BASIC stub: 10 SYS 2064
+        // Must be exactly 17 bytes so machine code starts at $0810
         const basic = [
-            0x01, 0x08, // Load address: $0801
-            0x0C, 0x08, // Next line pointer: $080C
+            0x01, 0x08, // PRG header: load at $0801
+            0x0B, 0x08, // Next BASIC line pointer: $080B
             0x0A, 0x00, // Line number: 10
             0x9E,       // SYS token
             0x32, 0x30, 0x36, 0x34, // "2064"
             0x00,       // End of line
-            0x00, 0x00, // End of program
+            0x00, 0x00, // End of BASIC program (at $080B)
+            0x00, 0x00, 0x00, // Padding to reach $0810
         ];
 
         // Machine code at $0810
