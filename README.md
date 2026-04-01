@@ -6,8 +6,19 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
 
 1. Clone this repo
 2. **Download the font files** - see [Font Files](#font-files-required) below. The font library will not work without them.
-3. Serve with any HTTP server: `python -m http.server 8064`
-4. Open http://localhost:8064
+3. Open `index.html` in your browser — or use the included server script for the font library
+
+The editor works directly from the filesystem (`file://`), but the **font library** needs a local server to scan the `fonts/` directory. Use the included scripts to start one:
+
+```bash
+# Linux/macOS
+./start-server.sh
+
+# Windows (PowerShell)
+.\start-server.ps1
+```
+
+Then open http://localhost:8064 (pass a different port as an argument if needed).
 
 ## Features
 
@@ -70,15 +81,7 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
 
 ## Usage
 
-Serve the project with any HTTP server and open in a browser:
-
-```bash
-python -m http.server 8064
-```
-
-Then open http://localhost:8064
-
-No build step required - plain HTML/CSS/JS.
+Just open `index.html` directly in your browser — no build step, no server required. Pure HTML/CSS/JS.
 
 ## Project Structure
 
@@ -122,17 +125,13 @@ fonts/
   zx_spectrum.bin      - ZX Spectrum character set
 ```
 
-Quick download (Linux/macOS):
+Quick download:
 ```bash
-mkdir -p fonts
-for f in c64 c64_swedish c64_swedish2; do
-  curl -sLO --output-dir fonts \
-    "https://raw.githubusercontent.com/patrickmollohan/c64-fonts/master/original/${f}.bin"
-done
-for f in aniron apple_ii aurebesh comic_sans hachicro kauno kirby_forgotten_land minecraft zx_spectrum; do
-  curl -sLO --output-dir fonts \
-    "https://raw.githubusercontent.com/patrickmollohan/c64-fonts/master/custom/${f}.bin"
-done
+# Linux/macOS
+./download-fonts.sh
+
+# Windows (PowerShell)
+.\download-fonts.ps1
 ```
 
 ### Additional font: PXLfont
