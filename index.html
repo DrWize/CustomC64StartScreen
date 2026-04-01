@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>C64 Boot Screen Editor</title>
+    <link rel="stylesheet" href="css/styles.css?v=2">
+</head>
+<body>
+
+<!-- Header -->
+<header class="app-header">
+    <h1>C64 Boot Screen Editor</h1>
+    <span class="subtitle">Design custom Commodore 64 startup screens</span>
+</header>
+
+<!-- Main Layout -->
+<div class="app-layout">
+
+    <!-- Left Panel: Tools & Characters -->
+    <div class="left-panel">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-group">
+                <button class="tool-btn active" id="tool-draw" title="Draw (D)">Draw</button>
+                <button class="tool-btn" id="tool-erase" title="Erase (E)">Erase</button>
+                <button class="tool-btn" id="tool-fill" title="Fill (F)">Fill</button>
+                <button class="tool-btn" id="tool-text" title="Text (T)">Text</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="tool-btn" id="tool-colorpaint" title="Color Paint (C)">Color</button>
+                <button class="tool-btn" id="tool-line" title="Line (L)">Line</button>
+                <button class="tool-btn" id="tool-rect" title="Rectangle (R)">Rect</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="action-btn" id="btn-undo" title="Undo (Ctrl+Z)">Undo</button>
+                <button class="action-btn" id="btn-redo" title="Redo (Ctrl+Y)">Redo</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="action-btn" id="btn-clear" title="Clear Screen">Clear</button>
+                <button class="action-btn" id="btn-invert" title="Invert Screen">Inv</button>
+                <button class="action-btn" id="btn-grid" title="Toggle Grid (G)">Grid</button>
+                <button class="action-btn" id="btn-charset">CHARSET: UPPER</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="action-btn" id="btn-del-row" title="Delete row at cursor">Del Row</button>
+                <button class="action-btn" id="btn-ins-row" title="Insert row at cursor">Ins Row</button>
+            </div>
+        </div>
+
+        <!-- Color Section -->
+        <div class="panel-section">
+            <h3>Colors</h3>
+            <div class="color-row">
+                <label>Border</label>
+                <div class="color-indicator" id="border-current"></div>
+                <div class="color-palette" id="border-colors"></div>
+            </div>
+            <div class="color-row">
+                <label>Backgr</label>
+                <div class="color-indicator" id="bg-current"></div>
+                <div class="color-palette" id="bg-colors"></div>
+            </div>
+            <div class="color-row">
+                <label>Text</label>
+                <div class="color-indicator" id="text-current"></div>
+                <div class="color-palette" id="text-colors"></div>
+            </div>
+            <button class="action-btn" id="btn-apply-color" title="Apply text color to all characters on screen" style="margin-top:4px;width:100%">Apply color to all</button>
+        </div>
+
+        <!-- Character Picker -->
+        <div class="panel-section">
+            <h3>Characters</h3>
+            <div class="char-picker-container">
+                <div id="char-picker"></div>
+            </div>
+            <div id="char-info">Char: 32 ($20)</div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="shortcuts-help">
+            <kbd>D</kbd>raw <kbd>E</kbd>rase <kbd>F</kbd>ill <kbd>T</kbd>ext
+            <kbd>C</kbd>olor <kbd>L</kbd>ine <kbd>R</kbd>ect <kbd>G</kbd>rid
+            <br>
+            <kbd>Ctrl+Z</kbd> Undo <kbd>Ctrl+Y</kbd> Redo
+            <br>
+            Right-click: pick char+color from screen
+        </div>
+    </div>
+
+    <!-- Center Panel: Canvas -->
+    <div class="center-panel">
+        <canvas id="c64-canvas"></canvas>
+        <div class="status-bar" style="display:flex;justify-content:space-between">
+            <span id="status-bar">Hover over screen for info</span>
+            <span id="cursor-pos">READY. at row 0</span>
+        </div>
+    </div>
+
+    <!-- Right Panel: Tabs -->
+    <div class="right-panel">
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="templates">Templates</button>
+            <button class="tab-btn" data-tab="rom">ROM</button>
+            <button class="tab-btn" data-tab="chargen">Chargen</button>
+            <button class="tab-btn" data-tab="export">Export</button>
+        </div>
+
+        <!-- Tab: Templates -->
+        <div class="tab-panel active" id="tab-templates">
+            <div class="panel-section">
+                <h3>Boot Screen Templates</h3>
+                <div id="template-list"></div>
+            </div>
+            <div class="panel-section">
+                <h3>Country Flags</h3>
+                <div id="flag-list"></div>
+            </div>
+        </div>
+
+        <!-- Tab: ROM -->
+        <div class="tab-panel" id="tab-rom">
+            <div class="panel-section">
+                <h3>KERNAL ROM</h3>
+                <div class="file-row">
+                    <label>Upload KERNAL ROM (8KB .bin/.rom)</label>
+                    <input type="file" id="rom-upload" accept=".bin,.rom">
+                </div>
+                <div class="file-info" id="rom-info">No ROM loaded</div>
+            </div>
+
+            <div id="rom-loaded">
+                <div class="panel-section">
+                    <h3>Simple Mode (Text Only)</h3>
+                    <div class="file-row">
+                        <label>Line 1 (max 35 chars, centered)</label>
+                        <input type="text" id="rom-line1" maxlength="35" placeholder="**** COMMODORE 64 BASIC V2 ****">
+                    </div>
+                    <div class="file-row">
+                        <label>Line 2 (max 16 chars)</label>
+                        <input type="text" id="rom-line2" maxlength="16" placeholder="64K RAM SYSTEM">
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn-primary" id="btn-download-simple">Download Simple Patch</button>
+                    </div>
+                    <div style="margin-top:6px;font-size:11px;color:var(--c64-text-dim)">
+                        Changes text + colors only. Uses current border/bg/text colors.
+                    </div>
+                </div>
+
+                <div class="panel-section">
+                    <h3>Extended Mode (Full Screen)</h3>
+                    <p style="font-size:11px;color:var(--c64-text-dim);margin-bottom:8px">
+                        Injects custom boot screen from the editor into the KERNAL ROM.
+                        Overwrites RS-232 routines (safe for most users).
+                        BASIC's "READY." is positioned automatically below your design.
+                    </p>
+                    <div class="file-info" id="cursor-info">Cursor: auto-detected</div>
+                    <div class="btn-group">
+                        <button class="btn-primary" id="btn-download-extended">Download Extended Patch</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Chargen -->
+        <div class="tab-panel" id="tab-chargen">
+            <div class="panel-section">
+                <h3>Font Library</h3>
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-bottom:8px">
+                    Select a character ROM to use. Click to preview, changes apply instantly.
+                </p>
+                <div id="font-library"></div>
+            </div>
+
+            <div class="panel-section">
+                <h3>Custom Character ROM</h3>
+                <div class="file-row">
+                    <label>Upload Chargen ROM (4KB, optional)</label>
+                    <input type="file" id="chargen-upload" accept=".bin,.rom">
+                </div>
+                <div class="file-info" id="chargen-info">Using built-in character set</div>
+            </div>
+
+            <div class="panel-section">
+                <h3>Edit Character</h3>
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-bottom:8px">
+                    Click pixels to toggle. Right-click to erase.
+                    Double-click a character in the picker to edit it here.
+                </p>
+                <div style="display:flex;gap:12px;align-items:start">
+                    <canvas id="chargen-canvas"></canvas>
+                    <div>
+                        <canvas id="chargen-preview"></canvas>
+                        <div class="chargen-actions">
+                            <button id="chargen-shift-up" title="Shift Up">Up</button>
+                            <button id="chargen-shift-down" title="Shift Down">Down</button>
+                            <button id="chargen-shift-left" title="Shift Left">Left</button>
+                            <button id="chargen-shift-right" title="Shift Right">Right</button>
+                        </div>
+                        <div class="chargen-actions">
+                            <button id="chargen-mirror-h" title="Mirror Horizontal">MirH</button>
+                            <button id="chargen-mirror-v" title="Mirror Vertical">MirV</button>
+                            <button id="chargen-invert" title="Invert">Inv</button>
+                            <button id="chargen-clear" title="Clear">Clr</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="btn-group">
+                    <button class="btn-secondary" id="btn-download-chargen">Download Chargen ROM</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: Export -->
+        <div class="tab-panel" id="tab-export">
+            <div class="panel-section">
+                <h3>Export Screen Design</h3>
+                <div class="btn-group">
+                    <button class="btn-secondary" id="btn-export-json">Export as JSON</button>
+                    <button class="btn-secondary" id="btn-import-json">Import JSON</button>
+                    <input type="file" id="json-upload" class="hidden" accept=".json">
+                </div>
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-top:8px">
+                    Save/load screen designs for sharing or later editing.
+                </p>
+            </div>
+
+            <div class="panel-section">
+                <h3>Export as .PRG</h3>
+                <div class="btn-group">
+                    <button class="btn-primary" id="btn-download-prg">Download .PRG</button>
+                </div>
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-top:8px">
+                    Creates a C64 executable (.prg) that displays your boot screen.
+                    Load in VICE or transfer to real hardware. Press any key to exit.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts (order matters) -->
+<script src="js/c64-data.js?v=2"></script>
+<script src="js/screen-editor.js?v=2"></script>
+<script src="js/rom-patcher.js?v=2"></script>
+<script src="js/chargen-editor.js?v=2"></script>
+<script src="js/templates.js?v=2"></script>
+<script src="js/app.js?v=2"></script>
+
+</body>
+</html>

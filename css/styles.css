@@ -1,0 +1,564 @@
+/* C64 Boot Screen Editor - Styles */
+
+:root {
+    --c64-blue: #0000AA;
+    --c64-light-blue: #0088FF;
+    --c64-dark: #1a1a2e;
+    --c64-darker: #0f0f23;
+    --c64-panel: #16213e;
+    --c64-border: #0f3460;
+    --c64-accent: #0088FF;
+    --c64-text: #e0e0e0;
+    --c64-text-dim: #888;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--c64-darker);
+    color: var(--c64-text);
+    font-family: 'Segoe UI', 'Arial', sans-serif;
+    font-size: 14px;
+    overflow-x: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────── */
+
+.app-header {
+    background: var(--c64-dark);
+    border-bottom: 2px solid var(--c64-border);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.app-header h1 {
+    font-size: 18px;
+    color: var(--c64-light-blue);
+    white-space: nowrap;
+}
+
+.app-header .subtitle {
+    color: var(--c64-text-dim);
+    font-size: 12px;
+}
+
+/* ── Main Layout ─────────────────────────────────────────────────── */
+
+.app-layout {
+    display: flex;
+    height: calc(100vh - 42px);
+}
+
+.left-panel {
+    width: 300px;
+    min-width: 260px;
+    background: var(--c64-dark);
+    border-right: 2px solid var(--c64-border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.center-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    overflow: auto;
+    background: var(--c64-darker);
+}
+
+.right-panel {
+    width: 320px;
+    min-width: 280px;
+    background: var(--c64-dark);
+    border-left: 2px solid var(--c64-border);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────── */
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 8px;
+    background: var(--c64-panel);
+    border-bottom: 1px solid var(--c64-border);
+}
+
+.toolbar-group {
+    display: flex;
+    gap: 2px;
+    padding-right: 8px;
+    border-right: 1px solid var(--c64-border);
+    margin-right: 4px;
+}
+
+.toolbar-group:last-child {
+    border-right: none;
+    margin-right: 0;
+}
+
+.tool-btn, .action-btn {
+    background: var(--c64-dark);
+    color: var(--c64-text);
+    border: 1px solid var(--c64-border);
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 3px;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.tool-btn:hover, .action-btn:hover {
+    background: var(--c64-border);
+    border-color: var(--c64-accent);
+}
+
+.tool-btn.active {
+    background: var(--c64-accent);
+    color: #000;
+    border-color: var(--c64-accent);
+    font-weight: bold;
+}
+
+/* ── Canvas ──────────────────────────────────────────────────────── */
+
+#c64-canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    max-width: 100%;
+    height: auto;
+}
+
+/* ── Status Bar ──────────────────────────────────────────────────── */
+
+.status-bar {
+    background: var(--c64-panel);
+    border-top: 1px solid var(--c64-border);
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--c64-text-dim);
+    font-family: 'Consolas', 'Courier New', monospace;
+    min-height: 24px;
+}
+
+/* ── Panel Sections ──────────────────────────────────────────────── */
+
+.panel-section {
+    padding: 10px;
+    border-bottom: 1px solid var(--c64-border);
+}
+
+.panel-section h3 {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: var(--c64-accent);
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+
+/* ── Color Palette ───────────────────────────────────────────────── */
+
+.color-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 6px;
+    gap: 6px;
+}
+
+.color-row label {
+    font-size: 11px;
+    color: var(--c64-text-dim);
+    width: 50px;
+    flex-shrink: 0;
+}
+
+.color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+}
+
+.color-swatch {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 2px;
+    transition: transform 0.1s;
+}
+
+.color-swatch:hover {
+    transform: scale(1.2);
+    z-index: 1;
+}
+
+.color-swatch.active {
+    border-color: #fff;
+    box-shadow: 0 0 4px rgba(255,255,255,0.5);
+}
+
+.color-indicator {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #555;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+/* ── Character Picker ────────────────────────────────────────────── */
+
+.char-picker-container {
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+#char-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1px;
+    padding: 4px;
+}
+
+.char-cell {
+    cursor: pointer;
+    border: 1px solid transparent;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    width: 16px;
+    height: 16px;
+}
+
+.char-cell:hover {
+    border-color: var(--c64-accent);
+}
+
+.char-cell.active {
+    border-color: #fff;
+    box-shadow: 0 0 4px rgba(255,255,255,0.5);
+}
+
+#char-info {
+    font-size: 11px;
+    color: var(--c64-text-dim);
+    font-family: 'Consolas', monospace;
+    margin-top: 4px;
+}
+
+/* ── Font Library ────────────────────────────────────────────────── */
+
+.font-btn {
+    display: block;
+    width: 100%;
+    background: var(--c64-panel);
+    color: var(--c64-text);
+    border: 1px solid var(--c64-border);
+    padding: 5px 8px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 12px;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    transition: all 0.15s;
+}
+
+.font-btn:hover {
+    background: var(--c64-border);
+    border-color: var(--c64-accent);
+}
+
+.font-btn.active {
+    background: var(--c64-accent);
+    color: #000;
+    border-color: var(--c64-accent);
+    font-weight: bold;
+}
+
+/* ── Flag Templates ──────────────────────────────────────────────── */
+
+.flag-select {
+    width: 100%;
+    background: var(--c64-panel);
+    color: var(--c64-text);
+    border: 1px solid var(--c64-border);
+    padding: 6px 8px;
+    font-size: 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    margin-bottom: 8px;
+}
+
+.flag-select:focus {
+    border-color: var(--c64-accent);
+    outline: none;
+}
+
+.flag-preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.flag-preview-item {
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 2px;
+    transition: all 0.15s;
+    line-height: 0;
+}
+
+.flag-preview-item:hover {
+    border-color: var(--c64-accent);
+    transform: scale(1.15);
+}
+
+.flag-preview-item canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    display: block;
+}
+
+/* ── Tabs ────────────────────────────────────────────────────────── */
+
+.tab-bar {
+    display: flex;
+    background: var(--c64-panel);
+    border-bottom: 1px solid var(--c64-border);
+}
+
+.tab-btn {
+    background: transparent;
+    color: var(--c64-text-dim);
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.15s;
+}
+
+.tab-btn:hover {
+    color: var(--c64-text);
+    background: rgba(255,255,255,0.05);
+}
+
+.tab-btn.active {
+    color: var(--c64-accent);
+    border-bottom-color: var(--c64-accent);
+}
+
+.tab-panel {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.tab-panel.active {
+    display: flex;
+}
+
+/* ── Template List ───────────────────────────────────────────────── */
+
+.template-btn {
+    display: block;
+    width: 100%;
+    background: var(--c64-panel);
+    color: var(--c64-text);
+    border: 1px solid var(--c64-border);
+    padding: 8px 10px;
+    cursor: pointer;
+    text-align: left;
+    margin-bottom: 4px;
+    border-radius: 3px;
+    transition: all 0.15s;
+}
+
+.template-btn:hover {
+    background: var(--c64-border);
+    border-color: var(--c64-accent);
+}
+
+.template-btn strong {
+    color: var(--c64-accent);
+    font-size: 13px;
+}
+
+.template-btn small {
+    color: var(--c64-text-dim);
+    font-size: 11px;
+}
+
+/* ── Chargen Editor ──────────────────────────────────────────────── */
+
+#chargen-canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border: 1px solid var(--c64-border);
+    max-width: 100%;
+}
+
+#chargen-preview {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    border: 1px solid var(--c64-border);
+}
+
+.chargen-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.chargen-actions button {
+    background: var(--c64-dark);
+    color: var(--c64-text);
+    border: 1px solid var(--c64-border);
+    padding: 4px 8px;
+    cursor: pointer;
+    font-size: 11px;
+    border-radius: 3px;
+}
+
+.chargen-actions button:hover {
+    background: var(--c64-border);
+    border-color: var(--c64-accent);
+}
+
+/* ── File IO Section ─────────────────────────────────────────────── */
+
+.file-section {
+    padding: 10px;
+}
+
+.file-row {
+    margin-bottom: 8px;
+}
+
+.file-row label {
+    display: block;
+    font-size: 11px;
+    color: var(--c64-text-dim);
+    margin-bottom: 4px;
+}
+
+.file-row input[type="file"] {
+    font-size: 12px;
+    color: var(--c64-text);
+    width: 100%;
+}
+
+.file-row input[type="text"] {
+    background: var(--c64-panel);
+    color: var(--c64-text);
+    border: 1px solid var(--c64-border);
+    padding: 4px 8px;
+    font-size: 12px;
+    width: 100%;
+    border-radius: 3px;
+    font-family: 'Consolas', monospace;
+}
+
+.file-info {
+    font-size: 11px;
+    color: var(--c64-accent);
+    margin-top: 4px;
+}
+
+.btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.btn-primary {
+    background: var(--c64-accent);
+    color: #000;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 3px;
+    transition: all 0.15s;
+}
+
+.btn-primary:hover {
+    background: #00a0ff;
+}
+
+.btn-secondary {
+    background: var(--c64-panel);
+    color: var(--c64-text);
+    border: 1px solid var(--c64-border);
+    padding: 6px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 3px;
+}
+
+.btn-secondary:hover {
+    background: var(--c64-border);
+}
+
+#rom-loaded {
+    display: none;
+}
+
+/* ── Hidden inputs ───────────────────────────────────────────────── */
+
+input[type="file"].hidden {
+    display: none;
+}
+
+/* ── Keyboard shortcuts help ─────────────────────────────────────── */
+
+.shortcuts-help {
+    font-size: 11px;
+    color: var(--c64-text-dim);
+    padding: 8px 10px;
+}
+
+.shortcuts-help kbd {
+    background: var(--c64-panel);
+    border: 1px solid var(--c64-border);
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+}
+
+/* ── Scrollbar styling ───────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--c64-darker);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--c64-border);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--c64-accent);
+}

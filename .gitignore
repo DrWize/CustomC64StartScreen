@@ -1,0 +1,15 @@
+# C64 character ROM font files (download separately, see README.md)
+fonts/*.bin
+
+# KERNAL ROM files
+kernal/*.bin
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
