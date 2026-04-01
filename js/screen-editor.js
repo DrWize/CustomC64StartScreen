@@ -411,7 +411,7 @@ class ScreenEditor {
         for (let row = C64.SCREEN_ROWS - 1; row >= 0; row--) {
             for (let col = 0; col < C64.SCREEN_COLS; col++) {
                 if (this.screenData[row * C64.SCREEN_COLS + col] !== 32) {
-                    return Math.min(row + 2, C64.SCREEN_ROWS - 1);
+                    return Math.min(row + 3, C64.SCREEN_ROWS - 1);
                 }
             }
         }
