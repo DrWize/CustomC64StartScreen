@@ -286,50 +286,6 @@ body {
     font-weight: bold;
 }
 
-/* ── Flag Templates ──────────────────────────────────────────────── */
-
-.flag-select {
-    width: 100%;
-    background: var(--c64-panel);
-    color: var(--c64-text);
-    border: 1px solid var(--c64-border);
-    padding: 6px 8px;
-    font-size: 12px;
-    border-radius: 3px;
-    cursor: pointer;
-    margin-bottom: 8px;
-}
-
-.flag-select:focus {
-    border-color: var(--c64-accent);
-    outline: none;
-}
-
-.flag-preview-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-}
-
-.flag-preview-item {
-    cursor: pointer;
-    border: 2px solid transparent;
-    border-radius: 2px;
-    transition: all 0.15s;
-    line-height: 0;
-}
-
-.flag-preview-item:hover {
-    border-color: var(--c64-accent);
-    transform: scale(1.15);
-}
-
-.flag-preview-item canvas {
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-    display: block;
-}
-
 /* ── Tabs ────────────────────────────────────────────────────────── */
 
 .tab-bar {

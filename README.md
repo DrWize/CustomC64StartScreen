@@ -1,6 +1,6 @@
 # C64 Boot Screen Editor
 
-A browser-based tool for designing custom Commodore 64 startup screens. Draw PETSCII art, pick from templates and country flags, edit character ROMs, and patch your KERNAL ROM with the result.
+A browser-based tool for designing custom Commodore 64 startup screens. Draw PETSCII art, pick from templates, edit character ROMs, and patch your KERNAL ROM with the result.
 
 ## Setup
 
@@ -91,7 +91,7 @@ C64Boot/
     screen-editor.js         - Canvas-based 40x25 PETSCII editor
     rom-patcher.js           - KERNAL ROM patching + .PRG export + RLE compression
     chargen-editor.js        - 8x8 pixel character editor
-    templates.js             - Boot screen templates + country flags
+    templates.js             - Boot screen templates
     app.js                   - Main app controller
   fonts/                     - Chargen ROM .bin files (not in repo, see below)
   kernal/                    - Your KERNAL ROM files (not in repo)
