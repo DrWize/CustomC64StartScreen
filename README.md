@@ -45,11 +45,14 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
   - Jumps to BASIC warm start (`$A644`) for normal input loop
 - **Status bar** shows where the cursor/READY. will appear after boot
 
-### Export
-- **Patched KERNAL ROM** (.bin) - Simple or Extended mode
-- **.PRG file** - C64 executable for testing in VICE emulator (press any key to exit)
-- **JSON** - export/import screen designs for sharing
-- **Chargen ROM** (.bin) - download modified character set
+### Export & Output Formats
+
+- **Patched KERNAL ROM** (.bin) — This is what you want for actually changing your boot screen. Upload your original KERNAL ROM in the ROM tab, design your screen, then download the patched `.bin`. In VICE: Settings > Machine > KERNAL and point to your patched file. On real hardware: burn to EPROM.
+  - *Simple mode*: changes startup text + colors only
+  - *Extended mode*: injects your full PETSCII screen design with custom 6502 code
+- **.PRG file** — A standalone C64 program for quick preview/testing. Load it in VICE with `LOAD "BOOTSCREEN.PRG",8,1` then `RUN`. Displays your screen and waits for a keypress, then returns to BASIC. This does NOT modify your KERNAL — it's just for previewing.
+- **JSON** — Export/import screen designs for sharing or later editing
+- **Chargen ROM** (.bin) — Download modified character set for use as a replacement chargen ROM
 
 ### Keyboard Shortcuts
 | Key | Tool |
