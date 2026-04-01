@@ -161,7 +161,14 @@ class RomPatcher {
     //   Prints " BASIC BYTES FREE"
     //   JMP $A644 (BASIC warm start: prints "READY." + enters input loop)
     //
-    // Our patch: Replace JSR $E422 at offset $039A with JSR $OurCode
+    // Our patch: Replace JSR $E422 at offset $039A with JSR $EEBB
+    // We inject into the RS-232 routines at $EEBB-$F0BC (514 bytes).
+    //
+    // IMPORTANT: $E500-$E6FF is screen editor code (IOBASE, SCREEN, CINT),
+    // NOT RS-232! CINT at $E518 is called during cold boot — overwriting
+    // it causes the machine to crash before reaching our hook.
+    // The actual RS-232 NMI/Tx/Rx routines are at $EEBB-$F0BC.
+    //
     // Our code fills screen+color RAM, sets colors, positions cursor,
     // then JMP $A644 to let BASIC print READY. at our chosen position.
 
@@ -202,22 +209,24 @@ class RomPatcher {
         // Build 6502 init code
         const initCode = this._buildInitCode(compScreen, compColor, borderColor, bgColor, cursorRow, readyColor);
 
-        // Inject into safe area: offset $0500 (address $E500)
-        const injectOffset = 0x0500;
-        const injectAddr = 0xE500;
-        const availableSpace = 0x0D00 - 0x0500; // ~2048 bytes
+        // Inject into RS-232 area: offset $0EBB (address $EEBB)
+        // RS-232 Tx/Rx NMI handlers — only active when RS-232 is open,
+        // never called during boot. Safe range: $EEBB-$F0BC (514 bytes).
+        const injectOffset = 0x0EBB;
+        const injectAddr = 0xEEBB;
+        const availableSpace = 0xF0BC - 0xEEBB + 1; // 514 bytes
         if (initCode.length > availableSpace) {
-            throw new Error(`Screen data too large: ${initCode.length} bytes (max ${availableSpace}). Try simplifying your design.`);
+            throw new Error(`Screen data too large: ${initCode.length} bytes (max ${availableSpace}). Try simplifying your design — use fewer unique characters or colors.`);
         }
 
         for (let i = 0; i < initCode.length; i++) {
             rom[injectOffset + i] = initCode[i];
         }
 
-        // Hook: Replace JSR $E422 at offset $039A with JSR $E500
+        // Hook: Replace JSR $E422 at offset $039A with JSR $EEBB
         rom[0x039A] = 0x20;                        // JSR
-        rom[0x039B] = injectAddr & 0xFF;            // low byte
-        rom[0x039C] = (injectAddr >> 8) & 0xFF;     // high byte
+        rom[0x039B] = injectAddr & 0xFF;            // low byte ($BB)
+        rom[0x039C] = (injectAddr >> 8) & 0xFF;     // high byte ($EE)
 
         return rom;
     }
@@ -232,7 +241,7 @@ class RomPatcher {
         // 6. Sets text color for READY.
         // 7. JMP $A644 (BASIC warm start — prints READY. + enters input loop)
 
-        const BASE = 0xE500;
+        const BASE = 0xEEBB;
         const code = [];
 
         // Helper: emit an RLE decompressor block targeting destHigh page

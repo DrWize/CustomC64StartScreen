@@ -24,9 +24,8 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
 - Uppercase/graphics and lowercase/uppercase character set toggle
 
 ### Templates
-- **Boot screens**: Classic C64, Dark Mode, Hacker Green, C= Logo Modern, Rainbow, Retro Terminal, Blank, Just Ready, Underline, Color Bars
+- **Boot screens**: Classic C64, Dark Mode, Hacker Green, C= Logo Modern, Rainbow, Retro Terminal, Blank, Underline, Color Bars
 - **C64 Ultimate editions**: Ultimate, Ultimate Dark, Ultimate Gold, Ultimate Starlight
-- **Country flags** (13): Sweden, Norway, Finland, Denmark, Germany, France, Italy, Netherlands, Ukraine, USA, United Kingdom, Japan, Brazil - with 3x3 color preview thumbnails and dropdown selector
 
 ### Character ROM / Font Library
 - **Auto-scans** the `fonts/` directory on startup — drop any `.bin` file in and refresh
@@ -38,7 +37,7 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
 ### ROM Patching
 - **Simple mode**: change startup text (Line 1 + Line 2) and colors in the KERNAL ROM
 - **Extended mode**: inject a full PETSCII boot screen into the KERNAL ROM using RLE-compressed 6502 machine code
-  - Overwrites RS-232 routines (safe for most users who don't use the serial port)
+  - Overwrites RS-232 NMI/Tx/Rx routines at `$EEBB`-`$F0BC` (safe for users who don't use the serial port for RS-232)
   - Hooks into the KERNAL startup at `$E39A`, replacing the banner print routine
   - Auto-detects cursor position: BASIC's "READY." prompt lands 2 rows below your design
   - Sets text color for READY. to match your design's dominant color
@@ -161,7 +160,8 @@ You need your own C64 KERNAL ROM file (8KB .bin/.rom) for the ROM patching featu
 | Border color | 3289 | 1 byte | `$0E` (light blue) |
 | Background color | 3290 | 1 byte | `$06` (blue) |
 | Text color | 1333 | 1 byte | `$0E` (light blue) |
-| Banner print JSR | `$E39A` | 3 bytes | `JSR $E422` (hook point for extended mode) |
+| Banner print JSR | `$E39A` | 3 bytes | `JSR $E422` (hook point for extended mode, redirected to `$EEBB`) |
+| RS-232 safe area | `$EEBB` | 514 bytes | RS-232 NMI/Tx/Rx routines (injection target for extended mode) |
 
 ## Credits
 

@@ -254,60 +254,7 @@ class App {
             container.appendChild(btn);
         });
 
-        // Flags dropdown
-        const flagSection = document.getElementById('flag-list');
-        if (!flagSection) return;
-
-        const flags = Templates.getFlags();
-        const select = document.createElement('select');
-        select.className = 'flag-select';
-        select.innerHTML = '<option value="">-- Select a flag --</option>';
-        flags.forEach((flag, idx) => {
-            const opt = document.createElement('option');
-            opt.value = idx;
-            opt.textContent = flag.name;
-            select.appendChild(opt);
-        });
-        select.addEventListener('change', () => {
-            if (select.value === '') return;
-            this._loadTemplate(flags[parseInt(select.value)]);
-        });
-        flagSection.appendChild(select);
-
-        // Preview grid: 3x3 colored blocks per flag
-        const previewGrid = document.createElement('div');
-        previewGrid.className = 'flag-preview-grid';
-        flags.forEach((flag, idx) => {
-            const item = document.createElement('div');
-            item.className = 'flag-preview-item';
-            item.title = flag.name;
-
-            // Render 3x3 mini preview from the flag screen data
-            const mini = document.createElement('canvas');
-            mini.width = 24;
-            mini.height = 18;
-            const ctx = mini.getContext('2d');
-
-            // Sample 3 rows x 3 cols from the flag area (rows 1-9, cols 4-35)
-            for (let r = 0; r < 3; r++) {
-                for (let c = 0; c < 3; c++) {
-                    const sampleRow = 1 + Math.floor(r * 3) + 1;
-                    const sampleCol = 4 + Math.floor(c * 10) + 3;
-                    const sampleIdx = sampleRow * 40 + sampleCol;
-                    const colorIdx = flag.color[sampleIdx];
-                    ctx.fillStyle = C64.COLORS[colorIdx].hex;
-                    ctx.fillRect(c * 8, r * 6, 8, 6);
-                }
-            }
-
-            item.appendChild(mini);
-            item.addEventListener('click', () => {
-                select.value = idx;
-                this._loadTemplate(flag);
-            });
-            previewGrid.appendChild(item);
-        });
-        flagSection.appendChild(previewGrid);
+        // Flags section removed — flag templates no longer included
     }
 
     _loadTemplate(tmpl) {
