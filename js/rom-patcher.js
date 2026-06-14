@@ -175,27 +175,36 @@ class RomPatcher {
 
     // ── Extended Mode: Full PETSCII Screen Injection ────────────────────
     //
-    // KERNAL startup flow (from ROM analysis):
-    //   $E394 (offset 0xE394): JSR $E453  (init BASIC vectors)
-    //   $E397 (offset 0xE397): JSR $E3BF  (init BASIC pointers)
-    //   $E39A (offset 0xE39A): JSR $E422  (print banner + bytes free, then JMP $A644)
+    // KERNAL ROM Memory Layout (ROM loaded at $E000 in C64 memory):
     //
-    // $E422 routine:
+    // KERNAL startup flow (from ROM analysis at addresses $E394-$E39A):
+    //   Address $E394 (ROM offset 0x0394): JSR $E453  (init BASIC vectors)
+    //   Address $E397 (ROM offset 0x0397): JSR $E3BF  (init BASIC pointers)
+    //   Address $E39A (ROM offset 0x039A): JSR $E422  (print banner + bytes free, then JMP $A644)
+    //
+    // $E422 routine (address $E422 = ROM offset 0x0422):
     //   Prints CLR screen + banner text via JSR $AB1E
     //   Calculates + prints free bytes
     //   Prints " BASIC BYTES FREE"
     //   JMP $A644 (BASIC warm start: prints "READY." + enters input loop)
     //
-    // Our patch: Replace JSR $E422 (3 bytes at offset 0x039A) with JSR $EEBB
-    // We inject our code into the RS-232 NMI/Tx/Rx routines area at $EEBB-$F0BC (514 bytes).
+    // Patch Strategy:
+    //   Our patch replaces JSR $E422 (3 bytes at ROM offset 0x039A) with JSR $EEBB
+    //   We inject our custom code into the RS-232 NMI/Tx/Rx routines area at addresses $EEBB-$F0BC
+    //   This corresponds to ROM offsets 0x0EBB-0x10BC (514 bytes available)
     //
-    // SAFETY: The RS-232 routines at $EEBB-$F0BC are only active when RS-232 is open.
-    // They are never called during the normal boot process, making this area safe for injection.
-    // Note: $E500-$E6FF contains screen editor code (CINT at $E518) which IS called during boot
-    // — overwriting that area would crash the machine before reaching our hook.
+    // SAFETY NOTES:
+    //   The RS-232 routines at $EEBB-$F0BC are only active when RS-232 is open.
+    //   They are NEVER called during the normal boot process, making this area safe for injection.
+    //   WARNING: $E500-$E6FF (ROM offsets 0x0500-0x06FF) contains screen editor code (CINT at $E518)
+    //   which IS called during boot — overwriting that area would crash before reaching our hook.
     //
-    // Our injected code fills screen+color RAM, sets colors, positions cursor,
-    // then JMP $A644 to let BASIC print READY. at our chosen position.
+    // Our injected code performs the following:
+    //   1. Fills screen RAM ($0400-$07E7) with our compressed screen data
+    //   2. Fills color RAM ($D800-$DBE7) with our compressed color data
+    //   3. Sets border and background colors
+    //   4. Positions cursor at the auto-detected row
+    //   5. JMP $A644 to let BASIC print "READY." at our chosen position
 
     /**
      * Patches the KERNAL ROM with a full PETSCII screen design using extended mode.
@@ -259,10 +268,12 @@ class RomPatcher {
             rom[injectOffset + i] = initCode[i];
         }
 
-        // Hook: Replace JSR $E422 at offset $039A with JSR $EEBB
-        rom[0x039A] = 0x20;                        // JSR
-        rom[0x039B] = injectAddr & 0xFF;            // low byte ($BB)
-        rom[0x039C] = (injectAddr >> 8) & 0xFF;     // high byte ($EE)
+        // Hook: Replace JSR $E422 (3 bytes at ROM offset 0x039A-0x039C) with JSR $EEBB
+        // Original bytes at 0x039A: 0x20 0x22 0xE4 (JSR $E422)
+        // New bytes:              0x20 0xBB 0xEE (JSR $EEBB)
+        rom[0x039A] = 0x20;                        // JSR opcode
+        rom[0x039B] = injectAddr & 0xFF;            // low byte of target address ($BB)
+        rom[0x039C] = (injectAddr >> 8) & 0xFF;     // high byte of target address ($EE)
 
         return rom;
     }
