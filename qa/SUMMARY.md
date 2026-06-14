@@ -14,7 +14,7 @@
 | **Risk Level** | LOW |
 | **Production Ready** | ✅ YES |
 | **Critical Issues** | 0 |
-| **Major Issues** | 2 |
+| **Major Issues** | 0 |
 | **Minor Issues** | 10 |
 | **Total Findings** | 28 |
 
@@ -35,17 +35,19 @@ qa/
 ### Critical (0 found)
 None - all critical issues are documentation/clarity issues, not bugs.
 
-### Major (2 found - Should Fix Before Release)
+### Major (0 found - All Fixed)
 
-1. **QA-003** - `app.js:73-79`
+All major issues have been resolved:
+
+1. **QA-003** - `app.js:73-79` - **FIXED**
    - **Issue**: Row operations use stale `_lastHoverRow` 
    - **Risk**: If user hasn't hovered, default to row 0 (unexpected behavior)
-   - **Fix**: Add validation, default to current selection
+   - **Fix**: Added fallback to `getCursorRow()` when `_lastHoverRow` is null
 
-2. **QA-004** - `screen-editor.js:367-407`
+2. **QA-004** - `screen-editor.js:367-407` - **FIXED**
    - **Issue**: No bounds checking in `deleteRow`/`insertRow`
    - **Risk**: Could cause array out-of-bounds access
-   - **Fix**: Validate row parameter: `>= 0 && < 25`
+   - **Fix**: Added validation: `if (row < 0 || row >= C64.SCREEN_ROWS) return`
 
 ---
 
