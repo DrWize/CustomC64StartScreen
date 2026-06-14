@@ -1,7 +1,8 @@
-// C64 Boot Screen Editor - Pre-made Boot Screen Templates
-// Each template defines: screen codes, color data, border color, background color
-// NOTE: Templates should NOT include "READY." — BASIC prints that automatically at boot.
-
+/**
+ * C64 Boot Screen Editor - Pre-made Boot Screen Templates
+ * Each template defines: screen codes, color data, border color, background color.
+ * NOTE: Templates should NOT include "READY." — BASIC prints that automatically at boot.
+ */
 const Templates = (() => {
 
     // Helper: create a SCREEN_SIZE-element array filled with a value
@@ -354,10 +355,19 @@ const Templates = (() => {
         ultimateStarlight,
     ];
 
+    /**
+     * Gets all available templates.
+     * @returns {Array<Object>} Array of template objects with name, description, screen, color, borderColor, bgColor
+     */
     function getAll() {
         return ALL.map(fn => fn());
     }
 
+    /**
+     * Gets a specific template by name.
+     * @param {string} name - The name of the template to retrieve
+     * @returns {Object|null} The template object or null if not found
+     */
     function getByName(name) {
         const template = ALL.find(fn => fn().name === name);
         return template ? template() : null;

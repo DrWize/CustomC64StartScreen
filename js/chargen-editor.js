@@ -1,7 +1,13 @@
-// C64 Boot Screen Editor - Character ROM (Chargen) Editor
-// Visual 8x8 pixel editor for individual characters
-
+/**
+ * C64 Boot Screen Editor - Character ROM (Chargen) Editor
+ * Visual 8x8 pixel editor for individual C64 characters.
+ */
 class ChargenEditor {
+    /**
+     * Creates a new ChargenEditor instance.
+     * @param {string} canvasId - The ID of the main canvas element
+     * @param {string} [previewCanvasId] - Optional ID of the preview canvas element
+     */
     constructor(canvasId, previewCanvasId) {
         this.canvas = document.getElementById(canvasId);
         this.previewCanvas = previewCanvasId ? document.getElementById(previewCanvasId) : null;
@@ -35,11 +41,19 @@ class ChargenEditor {
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
     }
 
+    /**
+     * Sets the chargen ROM data reference.
+     * @param {Uint8Array} data - The chargen ROM data (4096 bytes)
+     */
     setChargenData(data) {
         this.chargenData = data;
         this.render();
     }
 
+    /**
+     * Selects a character for editing.
+     * @param {number} screenCode - The screen code of the character to select (0-255)
+     */
     selectChar(screenCode) {
         this.selectedChar = screenCode & 0x7F; // strip reverse bit
         this.render();
@@ -173,6 +187,10 @@ class ChargenEditor {
 
     // ── Rendering ───────────────────────────────────────────────────────
 
+    /**
+     * Renders the currently selected character to the canvas.
+     * Displays an 8x8 pixel grid representing the character from the chargen ROM.
+     */
     render() {
         if (!this.chargenData) return;
 

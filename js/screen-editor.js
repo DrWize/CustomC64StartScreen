@@ -1,7 +1,12 @@
-// C64 Boot Screen Editor - Canvas-based PETSCII Screen Editor
-// Renders 40x25 character grid on HTML5 Canvas with per-cell color
-
+/**
+ * C64 Boot Screen Editor - Canvas-based PETSCII Screen Editor
+ * Renders a 40x25 character grid on HTML5 Canvas with per-cell color support.
+ */
 class ScreenEditor {
+    /**
+     * Creates a new ScreenEditor instance.
+     * @param {string} canvasId - The ID of the canvas element to render to
+     */
     constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
@@ -352,12 +357,20 @@ class ScreenEditor {
 
     // ── Screen Operations ───────────────────────────────────────────────
 
+    /**
+     * Clears the entire screen, filling all cells with spaces and default color.
+     */
     clearScreen() {
         this.screenData.fill(C64.SCREEN_CODE_SPACE); // spaces
         this.colorData.fill(this.defaultTextColor);
         this.render();
     }
 
+    /**
+     * Fills the entire screen with a specific character and color.
+     * @param {number} char - The screen code to fill with
+     * @param {number} color - The color index to fill with (0-15)
+     */
     fillScreen(char, color) {
         this._saveUndo();
         this.screenData.fill(char);
@@ -365,6 +378,9 @@ class ScreenEditor {
         this.render();
     }
 
+    /**
+     * Inverts all characters on the screen (toggles the reverse video bit).
+     */
     invertScreen() {
         this._saveUndo();
         for (let i = 0; i < C64.SCREEN_SIZE; i++) {
@@ -373,6 +389,10 @@ class ScreenEditor {
         this.render();
     }
 
+    /**
+     * Deletes a row from the screen, shifting all rows below it up.
+     * @param {number} row - The row index to delete (0-24)
+     */
     deleteRow(row) {
         if (row < 0 || row >= C64.SCREEN_ROWS) return;
         this._saveUndo();
@@ -394,6 +414,10 @@ class ScreenEditor {
         this.render();
     }
 
+    /**
+     * Inserts a new empty row at the specified position, shifting all rows below it down.
+     * @param {number} row - The row index where to insert the new row (0-24)
+     */
     insertRow(row) {
         if (row < 0 || row >= C64.SCREEN_ROWS) return;
         this._saveUndo();
@@ -415,7 +439,11 @@ class ScreenEditor {
         this.render();
     }
 
-    // Get the auto-detected cursor row (2 below last content)
+    /**
+     * Gets the auto-detected cursor row position (2 rows below last content).
+     * Used to determine where the BASIC READY. prompt will appear after boot.
+     * @returns {number} The row number (0-24) where the cursor should appear
+     */
     getCursorRow() {
         for (let row = C64.SCREEN_ROWS - 1; row >= 0; row--) {
             for (let col = 0; col < C64.SCREEN_COLS; col++) {
@@ -427,7 +455,13 @@ class ScreenEditor {
         return 0;
     }
 
-    // Load screen data from arrays
+    /**
+     * Loads screen data from arrays into the editor.
+     * @param {Uint8Array|Array} screenCodes - Array of screen codes (0-255)
+     * @param {Uint8Array|Array} colors - Array of color indices (0-15)
+     * @param {number} [border] - Border color index (0-15)
+     * @param {number} [bg] - Background color index (0-15)
+     */
     loadScreen(screenCodes, colors, border, bg) {
         this._saveUndo();
         if (screenCodes) this.screenData.set(screenCodes.slice(0, C64.SCREEN_SIZE));
@@ -437,7 +471,11 @@ class ScreenEditor {
         this.render();
     }
 
-    // Load custom chargen ROM data
+    /**
+     * Loads a custom character ROM (chargen) into the editor.
+     * Supports full 4096-byte ROMs or partial 2048-byte character sets.
+     * @param {Uint8Array|Array} data - The chargen ROM data (2048 or 4096 bytes)
+     */
     loadChargen(data) {
         if (data.length >= C64.CHARSET_SIZE) {
             this.chargenROM = new Uint8Array(data.slice(0, C64.CHARSET_SIZE));
@@ -451,7 +489,14 @@ class ScreenEditor {
         this.render();
     }
 
-    // Get screen state for export
+    /**
+     * Gets the current screen state for export or saving.
+     * @returns {Object} Object containing screen data, colors, and color settings
+     * @property {Array} screen - Array of screen codes (1000 elements, 0-255)
+     * @property {Array} color - Array of color indices (1000 elements, 0-15)
+     * @property {number} borderColor - Border color index (0-15)
+     * @property {number} bgColor - Background color index (0-15)
+     */
     getScreenState() {
         return {
             screen: Array.from(this.screenData),
@@ -463,6 +508,10 @@ class ScreenEditor {
 
     // ── Canvas Rendering ────────────────────────────────────────────────
 
+    /**
+     * Renders the current screen state to the canvas.
+     * Draws the 40x25 grid with characters and per-cell colors.
+     */
     render() {
         const ctx = this.ctx;
         const s = this.scale;

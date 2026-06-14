@@ -1,7 +1,11 @@
-// C64 Boot Screen Editor - KERNAL ROM Patcher
-// Handles: reading ROMs, simple text/color patching, extended PETSCII screen injection
-
+/**
+ * C64 Boot Screen Editor - KERNAL ROM Patcher
+ * Handles: reading ROMs, simple text/color patching, extended PETSCII screen injection
+ */
 class RomPatcher {
+    /**
+     * Creates a new RomPatcher instance.
+     */
     constructor() {
         this.romData = null;      // Uint8Array of KERNAL ROM
         this.romFileName = '';
@@ -11,6 +15,11 @@ class RomPatcher {
 
     // ── ROM Loading ─────────────────────────────────────────────────────
 
+    /**
+     * Loads a KERNAL ROM file for patching.
+     * @param {File} file - The KERNAL ROM file to load
+     * @returns {Promise<Object>} Promise that resolves with ROM info
+     */
     loadKernalROM(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -29,6 +38,11 @@ class RomPatcher {
         });
     }
 
+    /**
+     * Loads a character ROM (chargen) file for editing.
+     * @param {File} file - The chargen ROM file to load (must be 4096 bytes)
+     * @returns {Promise<Uint8Array>} Promise that resolves with the chargen data
+     */
     loadChargenROM(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -84,6 +98,16 @@ class RomPatcher {
 
     // ── Simple Mode: Text & Color Patching ──────────────────────────────
 
+    /**
+     * Patches the KERNAL ROM with simple text and color changes.
+     * Updates the two banner lines, border color, background color, and text color.
+     * @param {string} [line1] - First banner line text (max 35 chars)
+     * @param {string} [line2] - Second banner line text (max 16 chars)
+     * @param {number} [borderColor] - Border color index (0-15)
+     * @param {number} [bgColor] - Background color index (0-15)
+     * @param {number} [textColor] - Text color index (0-15)
+     * @returns {Uint8Array} The patched ROM data
+     */
     patchSimple(line1, line2, borderColor, bgColor, textColor) {
         if (!this.romData) throw new Error('No KERNAL ROM loaded');
 
@@ -173,6 +197,17 @@ class RomPatcher {
     // Our injected code fills screen+color RAM, sets colors, positions cursor,
     // then JMP $A644 to let BASIC print READY. at our chosen position.
 
+    /**
+     * Patches the KERNAL ROM with a full PETSCII screen design using extended mode.
+     * Injects RLE-compressed screen data and custom 6502 code into the RS-232 safe area.
+     * @param {Object} screenState - The screen state to inject
+     * @param {Uint8Array|Array} screenState.screen - Screen codes (1000 elements)
+     * @param {Uint8Array|Array} screenState.color - Color indices (1000 elements)
+     * @param {number} [screenState.borderColor] - Border color (0-15)
+     * @param {number} [screenState.bgColor] - Background color (0-15)
+     * @returns {Uint8Array} The patched ROM data with injected screen
+     * @throws {Error} If screen data is too large for the injection area
+     */
     patchExtended(screenState) {
         if (!this.romData) throw new Error('No KERNAL ROM loaded');
 
@@ -376,6 +411,11 @@ class RomPatcher {
 
     // ── Download ROM ────────────────────────────────────────────────────
 
+    /**
+     * Downloads a ROM file to the user's browser.
+     * @param {Uint8Array} romData - The ROM data to download
+     * @param {string} [filename] - The filename for the download (default: 'kernal-custom.bin')
+     */
     downloadROM(romData, filename) {
         const blob = new Blob([romData], { type: 'application/octet-stream' });
         const url = URL.createObjectURL(blob);
@@ -388,6 +428,11 @@ class RomPatcher {
         URL.revokeObjectURL(url);
     }
 
+    /**
+     * Downloads a chargen ROM file to the user's browser.
+     * @param {Uint8Array} chargenData - The chargen ROM data to download
+     * @param {string} [filename] - The filename for the download (default: 'chargen-custom.bin')
+     */
     downloadChargen(chargenData, filename) {
         const blob = new Blob([chargenData], { type: 'application/octet-stream' });
         const url = URL.createObjectURL(blob);
@@ -526,6 +571,11 @@ class RomPatcher {
         return prg;
     }
 
+    /**
+     * Downloads a C64 PRG file that displays the boot screen when loaded.
+     * @param {Object} screenState - The screen state to export
+     * @param {string} [filename] - The filename for the download (default: 'bootscreen.prg')
+     */
     downloadPRG(screenState, filename) {
         const prg = this._exportPRG(screenState);
         const blob = new Blob([prg], { type: 'application/octet-stream' });
@@ -545,6 +595,17 @@ class RomPatcher {
         return JSON.stringify(screenState, null, 2);
     }
 
+    /**
+     * Imports a screen design from a JSON string.
+     * Validates the structure and clamps all values to valid ranges.
+     * @param {string} jsonStr - The JSON string containing the screen design
+     * @returns {Object} The parsed and validated screen state
+     * @property {Array} screen - Screen codes (1000 elements, 0-255)
+     * @property {Array} color - Color indices (1000 elements, 0-15)
+     * @property {number} [borderColor] - Border color (0-15)
+     * @property {number} [bgColor] - Background color (0-15)
+     * @throws {Error} If JSON is invalid or structure is incorrect
+     */
     importJSON(jsonStr) {
         let state;
         try {

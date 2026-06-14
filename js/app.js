@@ -1,7 +1,12 @@
-// C64 Boot Screen Editor - Main Application Controller
-// Wires together all modules and manages UI interactions
-
+/**
+ * C64 Boot Screen Editor - Main Application Controller
+ * Wires together all modules (ScreenEditor, RomPatcher, ChargenEditor, Templates)
+ * and manages UI interactions.
+ */
 class App {
+    /**
+     * Creates a new App instance and initializes all components.
+     */
     constructor() {
         this.editor = new ScreenEditor('c64-canvas');
         this.patcher = new RomPatcher();
@@ -365,6 +370,10 @@ class App {
         });
     }
 
+    /**
+     * Handles simple ROM patch download.
+     * Patches the KERNAL ROM with custom text and colors from the UI inputs.
+     */
     _downloadSimple() {
         if (!this.patcher.romData) {
             alert('Please upload a KERNAL ROM file first.');
@@ -387,6 +396,10 @@ class App {
         }
     }
 
+    /**
+     * Handles extended ROM patch download.
+     * Patches the KERNAL ROM with the full screen design from the editor.
+     */
     _downloadExtended() {
         if (!this.patcher.romData) {
             alert('Please upload a KERNAL ROM file first.');

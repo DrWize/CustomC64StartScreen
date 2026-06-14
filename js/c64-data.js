@@ -487,6 +487,12 @@ const C64 = (() => {
     ];
 
     // Build full 4096-byte chargen ROM: 2 sets × 256 chars × 8 bytes
+    /**
+     * Builds a complete 4096-byte C64 chargen ROM from the two character sets.
+     * Combines uppercase/graphics (set 1) and lowercase/uppercase (set 2) with their
+     * reverse video counterparts.
+     * @returns {Uint8Array} A 4096-byte Uint8Array containing the complete chargen ROM
+     */
     function buildChargenROM() {
         const rom = new Uint8Array(4096);
 
@@ -503,7 +509,12 @@ const C64 = (() => {
         return rom;
     }
 
-    // ── PETSCII to Screen Code conversion ───────────────────────────────
+    /**
+     * Converts a PETSCII character code to a C64 screen code.
+     * Handles the PETSCII to screen code mapping including the shifted character sets.
+     * @param {number} petscii - The PETSCII character code (0-255)
+     * @returns {number} The corresponding screen code (0-255)
+     */
     function petsciiToScreenCode(petscii) {
         if (petscii < 32) return petscii + 128;
         if (petscii < 64) return petscii;
