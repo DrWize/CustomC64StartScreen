@@ -546,19 +546,57 @@ class RomPatcher {
     }
 
     importJSON(jsonStr) {
-        const state = JSON.parse(jsonStr);
-        if (!state.screen || !state.color || state.screen.length !== C64.SCREEN_SIZE) {
-            throw new Error('Invalid screen design file');
+        let state;
+        try {
+            state = JSON.parse(jsonStr);
+        } catch (e) {
+            throw new Error('Invalid JSON: ' + e.message);
         }
-        // Clamp color values to valid range
+        
+        // Validate required fields
+        if (!state || typeof state !== 'object') {
+            throw new Error('Invalid screen design file: not an object');
+        }
+        if (!Array.isArray(state.screen) || !Array.isArray(state.color)) {
+            throw new Error('Invalid screen design file: screen and color must be arrays');
+        }
+        if (state.screen.length !== C64.SCREEN_SIZE) {
+            throw new Error(`Invalid screen size: ${state.screen.length} (expected ${C64.SCREEN_SIZE})`);
+        }
+        if (state.color.length !== C64.SCREEN_SIZE) {
+            throw new Error(`Invalid color data length: ${state.color.length} (expected ${C64.SCREEN_SIZE})`);
+        }
+        
+        // Validate and clamp color values to valid range (0-15)
         for (let i = 0; i < state.color.length; i++) {
-            state.color[i] = (state.color[i] || 0) & 0x0F;
+            if (typeof state.color[i] !== 'number') {
+                throw new Error(`Invalid color at position ${i}: must be a number`);
+            }
+            state.color[i] = Math.min(Math.max(0, Math.floor(state.color[i])), 0x0F);
         }
+        
+        // Validate and clamp screen values to valid range (0-255)
         for (let i = 0; i < state.screen.length; i++) {
-            state.screen[i] = (state.screen[i] || 0) & 0xFF;
+            if (typeof state.screen[i] !== 'number') {
+                throw new Error(`Invalid screen code at position ${i}: must be a number`);
+            }
+            state.screen[i] = Math.min(Math.max(0, Math.floor(state.screen[i])), 0xFF);
         }
-        if (state.borderColor !== undefined) state.borderColor = (state.borderColor || 0) & 0x0F;
-        if (state.bgColor !== undefined) state.bgColor = (state.bgColor || 0) & 0x0F;
+        
+        // Validate optional fields
+        if (state.borderColor !== undefined) {
+            if (typeof state.borderColor !== 'number') {
+                throw new Error('Invalid borderColor: must be a number');
+            }
+            state.borderColor = Math.min(Math.max(0, Math.floor(state.borderColor)), 0x0F);
+        }
+        if (state.bgColor !== undefined) {
+            if (typeof state.bgColor !== 'number') {
+                throw new Error('Invalid bgColor: must be a number');
+            }
+            state.bgColor = Math.min(Math.max(0, Math.floor(state.bgColor)), 0x0F);
+        }
+        
         return state;
     }
 }

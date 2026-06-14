@@ -253,7 +253,15 @@ class App {
         templates.forEach(tmpl => {
             const btn = document.createElement('button');
             btn.className = 'template-btn';
-            btn.innerHTML = `<strong>${tmpl.name}</strong><br><small>${tmpl.description}</small>`;
+            // Use createElement instead of innerHTML for security
+            const strong = document.createElement('strong');
+            strong.textContent = tmpl.name;
+            const br = document.createElement('br');
+            const small = document.createElement('small');
+            small.textContent = tmpl.description;
+            btn.appendChild(strong);
+            btn.appendChild(br);
+            btn.appendChild(small);
             btn.addEventListener('click', () => this._loadTemplate(tmpl));
             container.appendChild(btn);
         });
