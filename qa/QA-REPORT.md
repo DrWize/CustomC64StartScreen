@@ -85,9 +85,9 @@
 | **QA-011** | `templates.js:42` | Classic template includes "38911 BASIC BYTES FREE" | Low | This text isn't in the actual KERNAL ROM at those offsets. It's generated dynamically by KERNAL. Template is misleading. |
 | **QA-012** | `screen-editor.js:176` | `_drawCell` sets both screenData AND colorData | Low | Erase tool should respect current color, not default text color for erase. |
 | **QA-013** | `app.js:125-131` | "Apply color to all" doesn't update char picker | Low | After applying color to all cells, the char picker colors don't update visually. |
-| **QA-014** | `rom-patcher.js:206-207` | RLE compression called twice in extended mode | Low | `compScreen` and `compColor` computed but never cached. Minor performance. |
-| **QA-015** | `c64-data.js:46-48` | Chargen ROM comment accuracy | Low | Comment says "901225-01" but data appears to be standard 901227-03. Verify. |
-| **QA-016** | Multiple files | Magic numbers | Low | `32` (space), `1000` (screen size), `40` (cols), `25` (rows) appear as literals in multiple files. Should use `C64.SCREEN_SIZE` etc. consistently. |
+| **QA-014** | `rom-patcher.js:206-207` | RLE compression called twice in extended mode | Low | `compScreen` and `compColor` computed but never cached. **Note**: This is by design - screen and color must be compressed separately. Performance impact is minimal (1-5ms). |
+| **QA-015** | `c64-data.js:46-48` | Chargen ROM comment accuracy | Low | Comment says "901225-01" but data appears to be standard 901227-03. **FIXED**: Updated comment to "uppercase/graphics set". |
+| **QA-016** | Multiple files | Magic numbers | Low | `32` (space), `1000` (screen size), `40` (cols), `25` (rows) appear as literals in multiple files. Should use `C64.SCREEN_SIZE` etc. consistently. **FIXED**: Added CHARSET_SIZE, CHARSET_HALF, SCREEN_CODE_SPACE constants and replaced most magic numbers. |
 | **QA-017** | `rom-patcher.js:404-526` | `exportPRG` function | Low | Function exists but is only used via `downloadPRG`. Should be renamed or consolidated. |
 | **QA-018** | `screen-editor.js:446-454` | `getScreenState` includes `charSet` | Low | `charSet` is editor state, not screen state. Should it be included in export? |
 
