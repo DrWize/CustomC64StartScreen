@@ -69,13 +69,15 @@ class App {
             this.editor.render();
         });
 
-        // Row operations - uses last hovered row
-        this._lastHoverRow = 0;
+        // Row operations - uses last hovered row, falls back to cursor row
+        this._lastHoverRow = null;
         document.getElementById('btn-del-row')?.addEventListener('click', () => {
-            this.editor.deleteRow(this._lastHoverRow);
+            const row = this._lastHoverRow !== null ? this._lastHoverRow : this.editor.getCursorRow();
+            this.editor.deleteRow(row);
         });
         document.getElementById('btn-ins-row')?.addEventListener('click', () => {
-            this.editor.insertRow(this._lastHoverRow);
+            const row = this._lastHoverRow !== null ? this._lastHoverRow : this.editor.getCursorRow();
+            this.editor.insertRow(row);
         });
 
         // Charset toggle
