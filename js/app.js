@@ -128,6 +128,8 @@ class App {
                 this.editor.colorData[i] = this.editor.currentColor;
             }
             this.editor.render();
+            // Update char picker to show new colors
+            this._buildCharPicker();
         });
 
         this._updateColorIndicators();

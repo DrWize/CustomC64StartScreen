@@ -16,11 +16,11 @@ const C64 = (() => {
         { name: 'Orange',      hex: '#DD8855', r: 221, g: 136, b: 85  },
         { name: 'Brown',       hex: '#664400', r: 102, g: 68,  b: 0   },
         { name: 'Light Red',   hex: '#FF7777', r: 255, g: 119, b: 119 },
-        { name: 'Dark Grey',   hex: '#333333', r: 51,  g: 51,  b: 51  },
-        { name: 'Grey',        hex: '#777777', r: 119, g: 119, b: 119 },
+        { name: 'Dark Gray',   hex: '#333333', r: 51,  g: 51,  b: 51  },
+        { name: 'Gray',        hex: '#777777', r: 119, g: 119, b: 119 },
         { name: 'Light Green', hex: '#AAFF66', r: 170, g: 255, b: 102 },
         { name: 'Light Blue',  hex: '#0088FF', r: 0,   g: 136, b: 255 },
-        { name: 'Light Grey',  hex: '#BBBBBB', r: 187, g: 187, b: 187 }
+        { name: 'Light Gray',  hex: '#BBBBBB', r: 187, g: 187, b: 187 }
     ];
 
     // ── KERNAL ROM Offsets ──────────────────────────────────────────────
@@ -41,8 +41,12 @@ const C64 = (() => {
     const SCREEN_SIZE = SCREEN_COLS * SCREEN_ROWS; // 1000
     const CHAR_WIDTH = 8;
     const CHAR_HEIGHT = 8;
+    
+    // ── Screen codes ───────────────────────────────────────────────────
+    const SCREEN_CODE_SPACE = 32; // Space character screen code
+    const SCREEN_CODE_AT = 0;     // @ character screen code
 
-    // ── Standard C64 Chargen ROM (901225-01) ────────────────────────────
+    // ── Standard C64 Chargen ROM (uppercase/graphics set) ──────────────
     // First character set: uppercase + graphics (2048 bytes, 256 chars × 8 bytes)
     // Characters 0-127 normal, 128-255 are reverse (XOR'd) versions
 
@@ -563,6 +567,8 @@ const C64 = (() => {
         SCREEN_SIZE,
         CHAR_WIDTH,
         CHAR_HEIGHT,
+        SCREEN_CODE_SPACE,
+        SCREEN_CODE_AT,
         CHARSET_UPPER,
         CHARSET_LOWER,
         CHAR_CATEGORIES,

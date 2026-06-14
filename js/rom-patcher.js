@@ -115,8 +115,8 @@ class RomPatcher {
 
     _padLine1(text) {
         // Line 1 format: "    **** COMMODORE 64 BASIC V2 ****\r\r"
-        // 37 bytes: 4 spaces + 4 stars + space + text + space + 4 stars + CR + CR
-        // We'll just let user fill 37 bytes with their text, padded with spaces, ending with CR CR
+        // 37 bytes total: 35 chars of text + 2 CR bytes at end
+        // Input is clamped to 35 chars, centered with spaces, then CR CR appended
         const maxLen = 35; // leave room for 2 x CR at end
         let clean = text.substring(0, maxLen).toUpperCase();
         // Center the text in 35 chars
@@ -128,14 +128,15 @@ class RomPatcher {
         for (let i = 0; i < 35 && i < clean.length; i++) {
             bytes[i] = clean.charCodeAt(i);
         }
-        bytes[35] = 0x0D; // CR
+        bytes[35] = 0x0D; // CR (carriage return)
         bytes[36] = 0x0D; // CR
         return bytes;
     }
 
     _padLine2(text) {
         // Line 2: " 64K RAM SYSTEM  " - 17 bytes, space-padded
-        const maxLen = 17;
+        // Input is clamped to 16 chars, left-padded with space, then space-padded to 17
+        const maxLen = 16; // leave room for leading space
         let clean = text.substring(0, maxLen).toUpperCase();
         // Left-pad with one space
         clean = ' ' + clean;
@@ -151,9 +152,9 @@ class RomPatcher {
     // ── Extended Mode: Full PETSCII Screen Injection ────────────────────
     //
     // KERNAL startup flow (from ROM analysis):
-    //   $E394: JSR $E453  (init BASIC vectors)
-    //   $E397: JSR $E3BF  (init BASIC pointers)
-    //   $E39A: JSR $E422  (print banner + bytes free, then JMP $A644)
+    //   $E394 (offset 0xE394): JSR $E453  (init BASIC vectors)
+    //   $E397 (offset 0xE397): JSR $E3BF  (init BASIC pointers)
+    //   $E39A (offset 0xE39A): JSR $E422  (print banner + bytes free, then JMP $A644)
     //
     // $E422 routine:
     //   Prints CLR screen + banner text via JSR $AB1E
@@ -161,15 +162,15 @@ class RomPatcher {
     //   Prints " BASIC BYTES FREE"
     //   JMP $A644 (BASIC warm start: prints "READY." + enters input loop)
     //
-    // Our patch: Replace JSR $E422 at offset $039A with JSR $EEBB
-    // We inject into the RS-232 routines at $EEBB-$F0BC (514 bytes).
+    // Our patch: Replace JSR $E422 (3 bytes at offset 0x039A) with JSR $EEBB
+    // We inject our code into the RS-232 NMI/Tx/Rx routines area at $EEBB-$F0BC (514 bytes).
     //
-    // IMPORTANT: $E500-$E6FF is screen editor code (IOBASE, SCREEN, CINT),
-    // NOT RS-232! CINT at $E518 is called during cold boot — overwriting
-    // it causes the machine to crash before reaching our hook.
-    // The actual RS-232 NMI/Tx/Rx routines are at $EEBB-$F0BC.
+    // SAFETY: The RS-232 routines at $EEBB-$F0BC are only active when RS-232 is open.
+    // They are never called during the normal boot process, making this area safe for injection.
+    // Note: $E500-$E6FF contains screen editor code (CINT at $E518) which IS called during boot
+    // — overwriting that area would crash the machine before reaching our hook.
     //
-    // Our code fills screen+color RAM, sets colors, positions cursor,
+    // Our injected code fills screen+color RAM, sets colors, positions cursor,
     // then JMP $A644 to let BASIC print READY. at our chosen position.
 
     patchExtended(screenState) {
@@ -401,7 +402,7 @@ class RomPatcher {
 
     // ── Export as .PRG ──────────────────────────────────────────────────
 
-    exportPRG(screenState) {
+    _exportPRG(screenState) {
         // Creates a C64 .PRG file that displays the boot screen
         // Load address: $0801 (BASIC start)
         // Contains a BASIC stub (SYS 2064) + machine code
@@ -526,7 +527,7 @@ class RomPatcher {
     }
 
     downloadPRG(screenState, filename) {
-        const prg = this.exportPRG(screenState);
+        const prg = this._exportPRG(screenState);
         const blob = new Blob([prg], { type: 'application/octet-stream' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');

@@ -40,11 +40,13 @@ const Templates = (() => {
         const color = fill(14);
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
-        setText(screen, color, 3, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 14);
+        // Line 2 in ROM is just "64K RAM SYSTEM  " (17 bytes)
+        // "38911 BASIC BYTES FREE" is generated dynamically by KERNAL at boot
+        setText(screen, color, 3, 1, '64K RAM SYSTEM', 14);
 
         return {
             name: 'Classic C64',
-            description: 'Default Commodore 64 boot screen',
+            description: 'Default Commodore 64 style boot screen',
             screen, color,
             borderColor: 14,
             bgColor: 6,
@@ -57,7 +59,7 @@ const Templates = (() => {
         const color = fill(15);
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 15);
-        setText(screen, color, 3, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
+        setText(screen, color, 3, 1, '64K RAM SYSTEM', 12);
 
         return {
             name: 'Dark Mode',
@@ -74,7 +76,7 @@ const Templates = (() => {
         const color = fill(5);
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 13);
-        setText(screen, color, 3, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 5);
+        setText(screen, color, 3, 1, '64K RAM SYSTEM', 5);
 
         return {
             name: 'Hacker Green',
@@ -102,7 +104,7 @@ const Templates = (() => {
 
         setText(screen, color, 7, 12, 'COMMODORE 64', 1);
         setText(screen, color, 10, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
-        setText(screen, color, 12, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 14);
+        setText(screen, color, 12, 1, '64K RAM SYSTEM', 14);
 
         return {
             name: 'C= Logo Modern',
@@ -129,7 +131,7 @@ const Templates = (() => {
 
         setText(screen, color, 8, 14, 'COMMODORE 64', 1);
         setText(screen, color, 10, 4, '**** COMMODORE 64 BASIC V2 ****', 15);
-        setText(screen, color, 12, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
+        setText(screen, color, 12, 1, '64K RAM SYSTEM', 12);
 
         return {
             name: 'Rainbow',
@@ -195,7 +197,7 @@ const Templates = (() => {
         }
 
         setText(screen, color, 12, 4, '**** COMMODORE 64 BASIC V2 ****', 1);
-        setText(screen, color, 14, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
+        setText(screen, color, 14, 1, '64K RAM SYSTEM', 12);
 
         return {
             name: 'Underline',
@@ -224,7 +226,7 @@ const Templates = (() => {
         }
 
         setText(screen, color, 12, 4, '**** COMMODORE 64 BASIC V2 ****', 1);
-        setText(screen, color, 14, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
+        setText(screen, color, 14, 1, '64K RAM SYSTEM', 12);
 
         return {
             name: 'Color Bars',
@@ -248,7 +250,7 @@ const Templates = (() => {
 
         setText(screen, color, 5, 8, 'COMMODORE 64 ULTIMATE', 1);
         setText(screen, color, 8, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
-        setText(screen, color, 10, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 14);
+        setText(screen, color, 10, 1, '64K RAM SYSTEM', 14);
 
         return {
             name: 'C64 Ultimate',
@@ -272,7 +274,7 @@ const Templates = (() => {
         setText(screen, color, 1, 9, 'COMMODORE 64 ULTIMATE', 1);
         setText(screen, color, 2, 15, 'EDITION', 12);
         setText(screen, color, 5, 4, '**** COMMODORE 64 BASIC V2 ****', 15);
-        setText(screen, color, 7, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 12);
+        setText(screen, color, 7, 1, '64K RAM SYSTEM', 12);
 
         return {
             name: 'C64 Ultimate Dark',
@@ -298,7 +300,7 @@ const Templates = (() => {
         setText(screen, color, 4, 9, 'COMMODORE 64 ULTIMATE', 7);
         setText(screen, color, 5, 14, 'FOUNDERS', 8);
         setText(screen, color, 8, 4, '**** COMMODORE 64 BASIC V2 ****', 7);
-        setText(screen, color, 10, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 8);
+        setText(screen, color, 10, 1, '64K RAM SYSTEM', 8);
 
         return {
             name: 'C64 Ultimate Gold',
@@ -324,7 +326,7 @@ const Templates = (() => {
         }
 
         setText(screen, color, 6, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
-        setText(screen, color, 8, 1, '64K RAM SYSTEM  38911 BASIC BYTES FREE', 15);
+        setText(screen, color, 8, 1, '64K RAM SYSTEM', 15);
 
         return {
             name: 'C64 Ultimate Starlight',

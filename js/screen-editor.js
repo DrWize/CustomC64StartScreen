@@ -89,6 +89,11 @@ class ScreenEditor {
         const cell = this._getCellFromMouse(e);
         if (!cell) return;
 
+        // Update hover position on click too (for row operations)
+        if (this.onCellHover) {
+            this.onCellHover(cell.col, cell.row, this.screenData[cell.idx], this.colorData[cell.idx]);
+        }
+
         if (e.button === 2) {
             // Right-click: pick character and color from cell
             this.currentChar = this.screenData[cell.idx];
@@ -173,14 +178,18 @@ class ScreenEditor {
     }
 
     _drawCell(cell) {
+        // Bounds check
+        if (cell.idx < 0 || cell.idx >= C64.SCREEN_SIZE) return;
         this.screenData[cell.idx] = this.currentChar;
         this.colorData[cell.idx] = this.currentColor;
         this.render();
     }
 
     _eraseCell(cell) {
+        // Bounds check
+        if (cell.idx < 0 || cell.idx >= C64.SCREEN_SIZE) return;
         this.screenData[cell.idx] = 32; // space
-        this.colorData[cell.idx] = this.defaultTextColor;
+        this.colorData[cell.idx] = this.currentColor;
         this.render();
     }
 
@@ -449,7 +458,6 @@ class ScreenEditor {
             color: Array.from(this.colorData),
             borderColor: this.borderColor,
             bgColor: this.bgColor,
-            charSet: this.charSet,
         };
     }
 
