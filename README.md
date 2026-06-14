@@ -187,6 +187,95 @@ Import JSON → App → RomPatcher.importJSON() → ScreenEditor.loadScreen()
 Export JSON → App → ScreenEditor.getScreenState() → JSON Download
 ```
 
+## 📦 RLE Compression Format
+
+The C64 Boot Screen Editor uses **Run-Length Encoding (RLE)** to compress screen and color data for injection into the KERNAL ROM. This compression is essential for fitting large designs into the limited space available in the RS-232 area ($EEBB-$F0BC, 514 bytes).
+
+### Format Specification
+
+The RLE compression format used is a **simple byte-oriented format**:
+
+```
+Compressed Data Structure:
+┌──────────┬──────────┬──────────┬──────────┐
+│  Count   │  Value   │  Count   │  Value   │ ...
+├──────────┼──────────┼──────────┼──────────┤
+│  1 byte  │  1 byte  │  1 byte  │  1 byte  │
+└──────────┴──────────┴──────────┴──────────┘
+                          │
+                          ▼
+                    [0x00] (End marker)
+```
+
+### Encoding Rules
+
+1. **Run Length**: Each byte value is preceded by a count byte (1-255)
+2. **Maximum Run**: 255 consecutive identical bytes (to fit in one byte)
+3. **End Marker**: A single `0x00` byte marks the end of compressed data
+4. **No Escaping**: The value `0x00` can appear in the data (it's just a count of 0)
+
+### Example
+
+**Original Data**: `0x20, 0x20, 0x20, 0x01, 0x01, 0x01, 0x01, 0x01`
+- 3 × `0x20` (space)
+- 5 × `0x01`
+
+**Compressed**: `0x03, 0x20, 0x05, 0x01, 0x00`
+- `0x03` = count of 3
+- `0x20` = value (space)
+- `0x05` = count of 5
+- `0x01` = value
+- `0x00` = end marker
+
+### Usage in Extended Mode
+
+In extended ROM patching mode:
+
+1. Screen data (1000 bytes) is RLE-compressed
+2. Color data (1000 bytes) is RLE-compressed separately
+3. Both compressed streams are embedded in the 6502 machine code
+4. The 6502 code includes a decompressor that:
+   - Reads count-value pairs
+   - Writes the value to screen/color RAM 'count' times
+   - Stops when it encounters the `0x00` end marker
+
+### Decompression Algorithm (6502 Assembly)
+
+The decompressor in the injected code performs:
+
+```
+Loop:
+  LDA (source),Y    ; Get count
+  BEQ Done          ; If count=0, we're done
+  STA temp_count    ; Store count
+  INY               ; Move to value byte
+  LDA (source),Y    ; Get value
+  INY               ; Move to next pair
+  
+Decompress:
+  STA target        ; Store value
+  INC target        ; Move to next position
+  DEC temp_count    ; Decrement count
+  BNE Decompress    ; Loop until count=0
+  
+  JMP Loop          ; Process next pair
+  
+Done:
+  RTS
+```
+
+### Compression Ratio
+
+- **Worst Case**: 2:1 (alternating values like checkerboard)
+- **Best Case**: ~50:1 (large areas of same character/color)
+- **Typical**: 3:1 to 10:1 for most boot screen designs
+
+### Size Limits
+
+- **Available Space**: 514 bytes in RS-232 area
+- **For Screen+Color**: ~250 bytes each after code overhead
+- **Result**: Most designs fit; very complex designs may exceed limit
+
 ## Font Files (REQUIRED)
 
 The font library needs chargen ROM files (.bin, 4096 bytes each) placed in the `fonts/` directory. These are **not included in the repository** - you must download them yourself.
