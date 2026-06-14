@@ -9,18 +9,18 @@ const C64 = (() => {
         { name: 'White',       hex: '#FFFFFF', r: 255, g: 255, b: 255 },
         { name: 'Red',         hex: '#880000', r: 136, g: 0,   b: 0   },
         { name: 'Cyan',        hex: '#AAFFEE', r: 170, g: 255, b: 238 },
-        { name: 'Purple',      hex: '#CC44CC', r: 204, g: 68,  b: 204 },
+        { name: 'Violet',      hex: '#CC44CC', r: 204, g: 68,  b: 204 },
         { name: 'Green',       hex: '#00CC55', r: 0,   g: 204, b: 85  },
         { name: 'Blue',        hex: '#0000AA', r: 0,   g: 0,   b: 170 },
         { name: 'Yellow',      hex: '#EEEE77', r: 238, g: 238, b: 119 },
         { name: 'Orange',      hex: '#DD8855', r: 221, g: 136, b: 85  },
         { name: 'Brown',       hex: '#664400', r: 102, g: 68,  b: 0   },
-        { name: 'Light Red',   hex: '#FF7777', r: 255, g: 119, b: 119 },
-        { name: 'Dark Gray',   hex: '#333333', r: 51,  g: 51,  b: 51  },
-        { name: 'Gray',        hex: '#777777', r: 119, g: 119, b: 119 },
-        { name: 'Light Green', hex: '#AAFF66', r: 170, g: 255, b: 102 },
-        { name: 'Light Blue',  hex: '#0088FF', r: 0,   g: 136, b: 255 },
-        { name: 'Light Gray',  hex: '#BBBBBB', r: 187, g: 187, b: 187 }
+        { name: 'Light red',   hex: '#FF7777', r: 255, g: 119, b: 119 },
+        { name: 'Dark grey',   hex: '#333333', r: 51,  g: 51,  b: 51  },
+        { name: 'Grey',        hex: '#777777', r: 119, g: 119, b: 119 },
+        { name: 'Light green', hex: '#AAFF66', r: 170, g: 255, b: 102 },
+        { name: 'Light blue',  hex: '#0088FF', r: 0,   g: 136, b: 255 },
+        { name: 'Light grey',  hex: '#BBBBBB', r: 187, g: 187, b: 187 }
     ];
 
     // ── KERNAL ROM Offsets ──────────────────────────────────────────────
