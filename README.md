@@ -128,6 +128,65 @@ C64Boot/
   kernal/                    - Your KERNAL ROM files (not in repo)
 ```
 
+## 🏗️ Architecture Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        C64 Boot Screen Editor                      │
+│                                                                 │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐ │
+│  │  index.html     │    │   c64-data.js   │    │    templates   │ │
+│  │   (Main UI)     │───▶│ (Constants/Data)│───▶│   (Presets)     │ │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘ │
+│                          │                                          │
+│                          ▼                                          │
+│  ┌─────────────────────────────────────────────────────────────────┐ │
+│  │                        App (app.js)                              │ │
+│  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────────┐ │ │
+│  │  │  Event      │  │  File I/O   │  │      UI Management             │ │ │
+│  │  │  Handling   │  │  (Uploads)  │  │  (Toolbar, Colors, Status Bar) │ │ │
+│  │  └─────────────┘  └─────────────┘  └─────────────────────────────┘ │ │
+│  │                                                            │ │
+│  │  ┌───────────────────────────────────────────────────────────┐ │ │
+│  │  │                   Module Coordination                        │ │ │
+│  │  └───────────────────────────────────────────────────────────┘ │ │
+│  └─────────────────────────────────────────────────────────────────┘ │
+│                          │                                          │
+│          ┌───────────────┴───────────────┬──────────────────────┐ │
+│          │                               │                              │ │
+│          ▼                               ▼                              ▼ │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐ │
+│  │ screen-editor.js│    │  rom-patcher.js  │    │ chargen-editor  │ │
+│  │                 │    │                 │    │                 │ │
+│  │ • 40x25 Canvas  │    │ • ROM Patching  │    │ • 8x8 Grid      │ │
+│  │ • Drawing Tools │    │ • Simple/Extended│    │ • Pixel Editing │ │
+│  │ • Undo/Redo     │    │ • PRG Export    │    │ • Character Set  │ │
+│  │ • Row Ops       │    │ • RLE Compress  │    │   Switching     │ │
+│  │ • Color Picker  │    │ • JSON Import   │    │                 │ │
+│  └─────────────────┘    └─────────────────┘    └─────────────────┘ │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Data Flow
+
+```
+User Interaction → App → ScreenEditor/ChargenEditor/RomPatcher
+                    ↓
+              Canvas Rendering
+                    ↓
+              User Feedback (Status Bar, Previews)
+```
+
+### File Flow
+
+```
+Upload KERNAL ROM → RomPatcher.loadKernalROM() → Patching → Download Patched ROM
+Upload Chargen ROM → ScreenEditor.loadChargen() → Editing → Download Modified Chargen
+Import JSON → App → RomPatcher.importJSON() → ScreenEditor.loadScreen()
+Export JSON → App → ScreenEditor.getScreenState() → JSON Download
+```
+
 ## Font Files (REQUIRED)
 
 The font library needs chargen ROM files (.bin, 4096 bytes each) placed in the `fonts/` directory. These are **not included in the repository** - you must download them yourself.
