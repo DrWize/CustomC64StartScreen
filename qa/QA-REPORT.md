@@ -155,15 +155,15 @@
 ## 🎯 **RECOMMENDATIONS**
 
 ### Immediate (P0 - This Week)
-1. **Fix QA-003**: Add validation for row operations when `_lastHoverRow` is undefined
-2. **Fix QA-004**: Add bounds checking in `deleteRow` and `insertRow`
-3. **Clarify QA-002**: Update comments in `rom-patcher.js` about injection safety
+- [x] **Fix QA-003**: Add validation for row operations when `_lastHoverRow` is undefined - **FIXED** (uses getCursorRow() as fallback)
+- [x] **Fix QA-004**: Add bounds checking in `deleteRow` and `insertRow` - **FIXED** (bounds check added)
+- [x] **Clarify QA-002**: Update comments in `rom-patcher.js` about injection safety - **FIXED** (comments clarified)
 
 ### Short-term (P1 - Next Sprint)
-4. Add input validation for Line 1/2 text length in simple mode
-5. Add bounds checking for all array accesses
-6. Consolidate magic numbers to use `C64` constants
-7. Add error boundaries for malformed ROM files
+- [x] Add input validation for Line 1/2 text length in simple mode - **FIXED** (text clamped to 35 chars)
+- [ ] Add bounds checking for all array accesses
+- [x] Consolidate magic numbers to use `C64` constants - **PARTIAL** (SCREEN_CODE_SPACE and SCREEN_CODE_AT added)
+- [ ] Add error boundaries for malformed ROM files
 
 ### Medium-term (P2 - Next Month)
 8. Add JSDoc comments for all public methods
