@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  c64boot:
+    image: c64boot-editor
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8064:8064"
+    volumes:
+      # Mount fonts directory for live updates
+      - ./fonts:/usr/local/apache2/htdocs/fonts:ro
+      # Mount kernal directory for live updates
+      - ./kernal:/usr/local/apache2/htdocs/kernal:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8064/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s

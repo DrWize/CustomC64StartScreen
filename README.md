@@ -8,7 +8,35 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
 2. **Download the font files** - see [Font Files](#font-files-required) below. The font library will not work without them.
 3. Open `index.html` in your browser — or use the included server script for the font library
 
-The editor works directly from the filesystem (`file://`), but the **font library** needs a local server to scan the `fonts/` directory. Use the included scripts to start one:
+The editor works directly from the filesystem (`file://`), but the **font library** needs a local server to scan the `fonts/` directory. 
+
+### Option 1: Docker (Recommended)
+
+The easiest and most reliable way to run the editor with full font library support:
+
+```bash
+# Build and run with Docker (requires Docker installed)
+# Linux/macOS
+./start-server-docker.sh
+
+# Windows (PowerShell)
+.\start-server-docker.ps1
+```
+
+Or manually:
+```bash
+docker build -t c64boot-editor .
+docker run --rm -it -p 8064:8064 -v $(pwd)/fonts:/usr/local/apache2/htdocs/fonts:ro c64boot-editor
+```
+
+Using `docker-compose`:
+```bash
+docker-compose up
+```
+
+### Option 2: Python HTTP Server
+
+If you don't have Docker, you can use Python's built-in HTTP server:
 
 ```bash
 # Linux/macOS

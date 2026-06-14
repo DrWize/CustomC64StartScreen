@@ -1,0 +1,36 @@
+# Docker ignore file
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if used)
+node_modules
+package-lock.json
+
+# Python
+__pycache__
+*.pyc
+
+# Logs
+*.log
+
+# Build artifacts
+*.bin
+*.prg
+*.rom
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
