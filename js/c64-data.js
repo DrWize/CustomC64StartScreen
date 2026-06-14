@@ -46,6 +46,10 @@ const C64 = (() => {
     const SCREEN_CODE_SPACE = 32; // Space character screen code
     const SCREEN_CODE_AT = 0;     // @ character screen code
 
+    // ── Chargen ROM ───────────────────────────────────────────────────
+    const CHARSET_SIZE = 4096;  // Full chargen ROM: 2 sets × 256 chars × 8 bytes
+    const CHARSET_HALF = 2048;  // One character set: 256 chars × 8 bytes
+
     // ── Standard C64 Chargen ROM (uppercase/graphics set) ──────────────
     // First character set: uppercase + graphics (2048 bytes, 256 chars × 8 bytes)
     // Characters 0-127 normal, 128-255 are reverse (XOR'd) versions
@@ -569,6 +573,8 @@ const C64 = (() => {
         CHAR_HEIGHT,
         SCREEN_CODE_SPACE,
         SCREEN_CODE_AT,
+        CHARSET_SIZE,
+        CHARSET_HALF,
         CHARSET_UPPER,
         CHARSET_LOWER,
         CHAR_CATEGORIES,

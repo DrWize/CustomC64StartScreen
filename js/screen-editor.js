@@ -19,7 +19,7 @@ class ScreenEditor {
         this.defaultTextColor = 14; // light blue
 
         // Editor state
-        this.currentChar = 32;    // space
+        this.currentChar = C64.SCREEN_CODE_SPACE;    // space
         this.currentColor = 14;   // light blue
         this.currentTool = 'draw'; // draw, fill, text, colorpaint, rect, line, erase
         this.charSet = 0;         // 0 = uppercase/graphics, 1 = lowercase/uppercase
@@ -188,7 +188,7 @@ class ScreenEditor {
     _eraseCell(cell) {
         // Bounds check
         if (cell.idx < 0 || cell.idx >= C64.SCREEN_SIZE) return;
-        this.screenData[cell.idx] = 32; // space
+        this.screenData[cell.idx] = C64.SCREEN_CODE_SPACE; // space
         this.colorData[cell.idx] = this.currentColor;
         this.render();
     }
@@ -285,7 +285,7 @@ class ScreenEditor {
             if (this.textCursorPos > 0) {
                 this._saveUndo();
                 this.textCursorPos--;
-                this.screenData[this.textCursorPos] = 32;
+                this.screenData[this.textCursorPos] = C64.SCREEN_CODE_SPACE;
                 this.colorData[this.textCursorPos] = this.currentColor;
                 this.render();
             }
@@ -353,7 +353,7 @@ class ScreenEditor {
     // ── Screen Operations ───────────────────────────────────────────────
 
     clearScreen() {
-        this.screenData.fill(32); // spaces
+        this.screenData.fill(C64.SCREEN_CODE_SPACE); // spaces
         this.colorData.fill(this.defaultTextColor);
         this.render();
     }
@@ -388,7 +388,7 @@ class ScreenEditor {
         // Clear last row
         const lastRow = (C64.SCREEN_ROWS - 1) * C64.SCREEN_COLS;
         for (let c = 0; c < C64.SCREEN_COLS; c++) {
-            this.screenData[lastRow + c] = 32;
+            this.screenData[lastRow + c] = C64.SCREEN_CODE_SPACE;
             this.colorData[lastRow + c] = this.defaultTextColor;
         }
         this.render();
@@ -409,7 +409,7 @@ class ScreenEditor {
         // Clear the inserted row
         const newRow = row * C64.SCREEN_COLS;
         for (let c = 0; c < C64.SCREEN_COLS; c++) {
-            this.screenData[newRow + c] = 32;
+            this.screenData[newRow + c] = C64.SCREEN_CODE_SPACE;
             this.colorData[newRow + c] = this.defaultTextColor;
         }
         this.render();
@@ -419,7 +419,7 @@ class ScreenEditor {
     getCursorRow() {
         for (let row = C64.SCREEN_ROWS - 1; row >= 0; row--) {
             for (let col = 0; col < C64.SCREEN_COLS; col++) {
-                if (this.screenData[row * C64.SCREEN_COLS + col] !== 32) {
+                if (this.screenData[row * C64.SCREEN_COLS + col] !== C64.SCREEN_CODE_SPACE) {
                     return Math.min(row + 1, C64.SCREEN_ROWS - 1);
                 }
             }
@@ -439,14 +439,14 @@ class ScreenEditor {
 
     // Load custom chargen ROM data
     loadChargen(data) {
-        if (data.length >= 4096) {
-            this.chargenROM = new Uint8Array(data.slice(0, 4096));
-        } else if (data.length >= 2048) {
+        if (data.length >= C64.CHARSET_SIZE) {
+            this.chargenROM = new Uint8Array(data.slice(0, C64.CHARSET_SIZE));
+        } else if (data.length >= C64.CHARSET_HALF) {
             // Partial - just one set
-            this.chargenROM = new Uint8Array(4096);
-            this.chargenROM.set(data.slice(0, 2048));
+            this.chargenROM = new Uint8Array(C64.CHARSET_SIZE);
+            this.chargenROM.set(data.slice(0, C64.CHARSET_HALF));
             // Generate reverse for second half
-            for (let i = 0; i < 2048; i++) this.chargenROM[2048 + i] = data[i] ^ 0xFF;
+            for (let i = 0; i < C64.CHARSET_HALF; i++) this.chargenROM[C64.CHARSET_HALF + i] = data[i] ^ 0xFF;
         }
         this.render();
     }
@@ -479,7 +479,7 @@ class ScreenEditor {
         ctx.fillRect(bs, bs, C64.SCREEN_COLS * bw, C64.SCREEN_ROWS * bh);
 
         // Draw each character cell
-        const charsetOffset = this.charSet * 2048;
+        const charsetOffset = this.charSet * C64.CHARSET_HALF;
         const bgCol = C64.COLORS[this.bgColor];
 
         for (let row = 0; row < C64.SCREEN_ROWS; row++) {
@@ -574,7 +574,7 @@ class ScreenEditor {
         targetCanvas.height = 8 * s;
         ctx.imageSmoothingEnabled = false;
 
-        const charsetOffset = this.charSet * 2048;
+        const charsetOffset = this.charSet * C64.CHARSET_HALF;
         const charIdx = screenCode & 0x7F;
         const isReversed = (screenCode & 0x80) !== 0;
         const romOffset = charsetOffset + charIdx * 8;

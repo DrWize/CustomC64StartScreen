@@ -70,7 +70,7 @@ class ChargenEditor {
     }
 
     _togglePixel(pixel) {
-        const offset = this.charSet * 2048 + this.selectedChar * 8 + pixel.y;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8 + pixel.y;
         const bit = 7 - pixel.x;
 
         if (this.drawMode) {
@@ -94,7 +94,7 @@ class ChargenEditor {
 
     shiftUp() {
         if (!this.chargenData) return;
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
         const first = this.chargenData[offset];
         for (let i = 0; i < 7; i++) {
             this.chargenData[offset + i] = this.chargenData[offset + i + 1];
@@ -107,7 +107,7 @@ class ChargenEditor {
 
     shiftDown() {
         if (!this.chargenData) return;
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
         const last = this.chargenData[offset + 7];
         for (let i = 7; i > 0; i--) {
             this.chargenData[offset + i] = this.chargenData[offset + i - 1];
@@ -132,7 +132,7 @@ class ChargenEditor {
 
     mirrorVertical() {
         if (!this.chargenData) return;
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
         for (let i = 0; i < 4; i++) {
             const tmp = this.chargenData[offset + i];
             this.chargenData[offset + i] = this.chargenData[offset + 7 - i];
@@ -145,7 +145,7 @@ class ChargenEditor {
 
     clearChar() {
         if (!this.chargenData) return;
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
         for (let i = 0; i < 8; i++) this.chargenData[offset + i] = 0;
         this._updateReverse();
         this.render();
@@ -154,7 +154,7 @@ class ChargenEditor {
 
     _transformChar(fn) {
         if (!this.chargenData) return;
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
         for (let i = 0; i < 8; i++) {
             this.chargenData[offset + i] = fn(this.chargenData[offset + i]);
         }
@@ -164,7 +164,7 @@ class ChargenEditor {
     }
 
     _updateReverse() {
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
         const reverseOffset = offset + 1024;
         for (let i = 0; i < 8; i++) {
             this.chargenData[reverseOffset + i] = this.chargenData[offset + i] ^ 0xFF;
@@ -178,7 +178,7 @@ class ChargenEditor {
 
         const ctx = this.ctx;
         const s = this.pixelScale;
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
 
         // Background
         ctx.fillStyle = '#1a1a2e';
@@ -220,7 +220,7 @@ class ChargenEditor {
         this.previewCanvas.height = 8 * s;
         ctx.imageSmoothingEnabled = false;
 
-        const offset = this.charSet * 2048 + this.selectedChar * 8;
+        const offset = this.charSet * C64.CHARSET_HALF + this.selectedChar * 8;
 
         for (let py = 0; py < 8; py++) {
             const row = this.chargenData[offset + py];

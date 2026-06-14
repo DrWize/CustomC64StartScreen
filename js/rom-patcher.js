@@ -181,21 +181,21 @@ class RomPatcher {
 
         // Find where READY. should go - scan for last non-space row
         let cursorRow = 0;
-        for (let row = 24; row >= 0; row--) {
+        for (let row = C64.SCREEN_ROWS - 1; row >= 0; row--) {
             let hasContent = false;
-            for (let col = 0; col < 40; col++) {
-                if (screen[row * 40 + col] !== 32) { hasContent = true; break; }
+            for (let col = 0; col < C64.SCREEN_COLS; col++) {
+                if (screen[row * C64.SCREEN_COLS + col] !== C64.SCREEN_CODE_SPACE) { hasContent = true; break; }
             }
             if (hasContent) {
-                cursorRow = Math.min(row + 1, 24);
+                cursorRow = Math.min(row + 1, C64.SCREEN_ROWS - 1);
                 break;
             }
         }
 
         // Text color for READY. - use the most common color in the design
         const colorCounts = new Array(16).fill(0);
-        for (let i = 0; i < 1000; i++) {
-            if (screen[i] !== 32) colorCounts[color[i]]++;
+        for (let i = 0; i < C64.SCREEN_SIZE; i++) {
+            if (screen[i] !== C64.SCREEN_CODE_SPACE) colorCounts[color[i]]++;
         }
         let readyColor = 1; // default white
         let maxCount = 0;

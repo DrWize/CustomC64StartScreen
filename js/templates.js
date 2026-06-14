@@ -4,13 +4,13 @@
 
 const Templates = (() => {
 
-    // Helper: create a 1000-element array filled with a value
-    function fill(val) { return new Array(1000).fill(val); }
+    // Helper: create a SCREEN_SIZE-element array filled with a value
+    function fill(val) { return new Array(C64.SCREEN_SIZE).fill(val); }
 
     // Helper: set text at a specific row/col position
     function setText(screen, color, row, col, text, textColor) {
-        for (let i = 0; i < text.length && col + i < 40; i++) {
-            const idx = row * 40 + col + i;
+        for (let i = 0; i < text.length && col + i < C64.SCREEN_COLS; i++) {
+            const idx = row * C64.SCREEN_COLS + col + i;
             screen[idx] = C64.asciiToScreenCode(text.charCodeAt(i));
             if (textColor !== undefined) color[idx] = textColor;
         }
@@ -18,8 +18,8 @@ const Templates = (() => {
 
     // Helper: draw horizontal line
     function hLine(screen, color, row, col, len, char, lineColor) {
-        for (let i = 0; i < len && col + i < 40; i++) {
-            const idx = row * 40 + col + i;
+        for (let i = 0; i < len && col + i < C64.SCREEN_COLS; i++) {
+            const idx = row * C64.SCREEN_COLS + col + i;
             screen[idx] = char;
             if (lineColor !== undefined) color[idx] = lineColor;
         }
@@ -27,8 +27,8 @@ const Templates = (() => {
 
     // Helper: draw vertical line
     function vLine(screen, color, col, row, len, char, lineColor) {
-        for (let i = 0; i < len && row + i < 25; i++) {
-            const idx = (row + i) * 40 + col;
+        for (let i = 0; i < len && row + i < C64.SCREEN_ROWS; i++) {
+            const idx = (row + i) * C64.SCREEN_COLS + col;
             screen[idx] = char;
             if (lineColor !== undefined) color[idx] = lineColor;
         }
@@ -36,7 +36,7 @@ const Templates = (() => {
 
     // ── Template: Classic C64 ───────────────────────────────────────────
     function classic() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(14);
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 14);
@@ -55,7 +55,7 @@ const Templates = (() => {
 
     // ── Template: Dark Mode ─────────────────────────────────────────────
     function darkMode() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(15);
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 15);
@@ -72,7 +72,7 @@ const Templates = (() => {
 
     // ── Template: Hacker Green ──────────────────────────────────────────
     function hackerGreen() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(5);
 
         setText(screen, color, 1, 4, '**** COMMODORE 64 BASIC V2 ****', 13);
@@ -89,7 +89,7 @@ const Templates = (() => {
 
     // ── Template: C= Logo ───────────────────────────────────────────────
     function commodoreLogo() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(1);
 
         // Color stripe at top (red, white, blue feel)
@@ -117,7 +117,7 @@ const Templates = (() => {
 
     // ── Template: Rainbow ───────────────────────────────────────────────
     function rainbow() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(1);
 
         const rainbowColors = [2, 8, 7, 5, 14, 4];
@@ -144,7 +144,7 @@ const Templates = (() => {
 
     // ── Template: Retro Terminal ─────────────────────────────────────────
     function retroTerminal() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(8);
 
         setText(screen, color, 0, 0, '========================================', 8);
@@ -174,7 +174,7 @@ const Templates = (() => {
 
     // ── Template: Blank ──────────────────────────────────────────────────
     function blank() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(1);
         return {
             name: 'Blank',
@@ -187,7 +187,7 @@ const Templates = (() => {
 
     // ── Template: Underline ─────────────────────────────────────────────
     function underline() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(1);
 
         // Thin line at row 10
@@ -210,7 +210,7 @@ const Templates = (() => {
 
     // ── Template: Color Bars ────────────────────────────────────────────
     function colorBars() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(1);
 
         const barColors = [1, 7, 3, 5, 4, 2, 6, 0];
@@ -239,7 +239,7 @@ const Templates = (() => {
 
     // ── Template: C64 Ultimate ─────────────────────────────────────────
     function ultimate() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(14);
 
         for (let c = 0; c < 40; c++) {
@@ -263,7 +263,7 @@ const Templates = (() => {
 
     // ── Template: C64 Ultimate Dark ─────────────────────────────────────
     function ultimateDark() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(12);
 
         for (let c = 0; c < 40; c++) {
@@ -287,7 +287,7 @@ const Templates = (() => {
 
     // ── Template: C64 Ultimate Gold ─────────────────────────────────────
     function ultimateGold() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(7);
 
         for (let c = 0; c < 40; c++) {
@@ -313,7 +313,7 @@ const Templates = (() => {
 
     // ── Template: C64 Ultimate Starlight ─────────────────────────────────
     function ultimateStarlight() {
-        const screen = fill(32);
+        const screen = fill(C64.SCREEN_CODE_SPACE);
         const color = fill(14);
 
         const title = 'COMMODORE 64 ULTIMATE';
