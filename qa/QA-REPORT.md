@@ -81,7 +81,7 @@
 | ID | File | Issue | Impact | Fix |
 |---|---|---|---|---|
 | **QA-009** | `index.html:7` | CSS cache busting inconsistent | Low | `styles.css?v=2` but JS files have `?v=2` too. Should all use same version or remove. |
-| **QA-010** | `c64-data.js:10-23` | Color `Dark Grey` vs `Gray` spelling | Low | Inconsistent: `Dark Grey` (British) vs `Grey`/`Gray` elsewhere. |
+| **QA-010** | `c64-data.js:10-23` | Color naming convention | Low | Inconsistent: `Dark Grey` (British) vs `Grey`/`Gray` elsewhere. **FIXED**: All color names now use official C64 Wiki naming convention (British English): Violet, Light red, Dark grey, Grey, Light green, Light blue, Light grey. |
 | **QA-011** | `templates.js:42` | Classic template includes "38911 BASIC BYTES FREE" | Low | This text isn't in the actual KERNAL ROM at those offsets. It's generated dynamically by KERNAL. Template is misleading. |
 | **QA-012** | `screen-editor.js:176` | `_drawCell` sets both screenData AND colorData | Low | Erase tool should respect current color, not default text color for erase. |
 | **QA-013** | `app.js:125-131` | "Apply color to all" doesn't update char picker | Low | After applying color to all cells, the char picker colors don't update visually. |
@@ -161,8 +161,9 @@
 
 ### Short-term (P1 - Next Sprint)
 - [x] Add input validation for Line 1/2 text length in simple mode - **FIXED** (text clamped to 35 chars)
+- [x] Color naming convention - **FIXED** (all colors now use official C64 Wiki British English names)
 - [ ] Add bounds checking for all array accesses
-- [x] Consolidate magic numbers to use `C64` constants - **PARTIAL** (SCREEN_CODE_SPACE and SCREEN_CODE_AT added)
+- [x] Consolidate magic numbers to use `C64` constants - **FIXED** (added CHARSET_SIZE, CHARSET_HALF, SCREEN_CODE_SPACE, SCREEN_CODE_AT and replaced most occurrences)
 - [ ] Add error boundaries for malformed ROM files
 
 ### Medium-term (P2 - Next Month)
