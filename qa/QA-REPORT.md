@@ -368,17 +368,17 @@ importJSON(jsonStr) {
 
 | Document | Status | Notes |
 |---|---|---|
-| README.md | ✅ Excellent | Comprehensive, well-structured |
-| Inline Code Comments | ⚠️ Inconsistent | `rom-patcher.js` needs clarification |
-| Function Documentation | ⚠️ Minimal | Missing JSDoc for most functions |
+| README.md | ✅ Excellent | Comprehensive, well-structured, now includes architecture diagram and RLE format |
+| Inline Code Comments | ✅ Good | rom-patcher.js comments clarified with address vs offset distinction |
+| Function Documentation | ✅ Complete | JSDoc added to all public methods in all JS files |
 | Keyboard Shortcuts | ✅ Complete | In README and UI |
 | Project Structure | ✅ Clear | Well-documented in README |
 
 **Recommendations**:
-- Add JSDoc to all public methods
-- Clarify ROM offset comments
-- Add architecture diagram to README
-- Document the RLE compression format
+- [x] Add JSDoc to all public methods - **COMPLETED**
+- [x] Clarify ROM offset comments - **COMPLETED**
+- [x] Add architecture diagram to README - **COMPLETED**
+- [x] Document the RLE compression format - **COMPLETED**
 
 ---
 
