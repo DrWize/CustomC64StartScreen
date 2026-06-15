@@ -12,26 +12,58 @@ The editor works directly from the filesystem (`file://`), but the **font librar
 
 ### Option 1: Docker (Recommended)
 
-The easiest and most reliable way to run the editor with full font library support:
+The easiest and most reliable way to run the editor with full font library support. The Docker container includes Apache HTTPD with auto-indexing enabled, which allows the font library to scan the `fonts/` directory.
+
+**Using the startup scripts (Recommended):**
 
 ```bash
-# Build and run with Docker (requires Docker installed)
 # Linux/macOS
-./start-server-docker.sh
+./start-server-docker.sh [port]
 
 # Windows (PowerShell)
-.\start-server-docker.ps1
+.\start-server-docker.ps1 [port]
 ```
 
-Or manually:
+The scripts automatically:
+- Check if Docker is installed and running
+- Build the Docker image with quiet mode
+- Start the container with volume mounts for `fonts/` and `kernal/` directories
+- Open the server on your specified port (default: 8064)
+
+Example with custom port:
 ```bash
-docker build -t c64boot-editor .
-docker run --rm -it -p 8064:8064 -v $(pwd)/fonts:/usr/local/apache2/htdocs/fonts:ro c64boot-editor
+./start-server-docker.sh 8080
 ```
 
-Using `docker-compose`:
+**Using docker-compose:**
+
 ```bash
+# Start services (includes health checks)
 docker-compose up
+
+# Start in detached mode
+docker-compose up -d
+
+# Stop services
+docker-compose down
+```
+
+The docker-compose configuration includes:
+- Automatic volume mounting for `fonts/` and `kernal/` directories
+- Health checks to ensure the server is running
+- Automatic restart unless explicitly stopped
+
+**Manual Docker commands:**
+```bash
+# Build the image
+docker build -t c64boot-editor .
+
+# Run the container with volume mounts
+docker run --rm -it -p 8064:8064 \
+    -v $(pwd)/fonts:/usr/local/apache2/htdocs/fonts:ro \
+    -v $(pwd)/kernal:/usr/local/apache2/htdocs/kernal:ro \
+    --name c64boot-editor \
+    c64boot-editor
 ```
 
 ### Option 2: Python HTTP Server

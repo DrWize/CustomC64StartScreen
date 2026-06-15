@@ -29,6 +29,17 @@ class App {
         this._loadTemplate(Templates.getAll()[0]);
     }
 
+    // ── Helper Methods ────────────────────────────────────────────────────
+
+    /**
+     * Generates a timestamp string for filenames.
+     * @returns {string} Timestamp in ISO format with hyphens instead of colons for filesystem safety
+     */
+    _getTimestamp() {
+        const now = new Date();
+        return now.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    }
+
     // ── Tabs ────────────────────────────────────────────────────────────
 
     _setupTabs() {
@@ -164,17 +175,26 @@ class App {
         const bgInd = document.getElementById('bg-current');
         const textInd = document.getElementById('text-current');
 
+        // Safety: ensure color indices are valid
+        const getColor = (idx) => {
+            idx = (idx !== null && idx !== undefined) ? (idx & 0x0F) : 14; // Default to light blue
+            return C64.COLORS[Math.min(idx, C64.COLORS.length - 1)];
+        };
+
         if (borderInd) {
-            borderInd.style.backgroundColor = C64.COLORS[this.editor.borderColor].hex;
-            borderInd.title = C64.COLORS[this.editor.borderColor].name;
+            const color = getColor(this.editor.borderColor);
+            borderInd.style.backgroundColor = color.hex;
+            borderInd.title = color.name;
         }
         if (bgInd) {
-            bgInd.style.backgroundColor = C64.COLORS[this.editor.bgColor].hex;
-            bgInd.title = C64.COLORS[this.editor.bgColor].name;
+            const color = getColor(this.editor.bgColor);
+            bgInd.style.backgroundColor = color.hex;
+            bgInd.title = color.name;
         }
         if (textInd) {
-            textInd.style.backgroundColor = C64.COLORS[this.editor.currentColor].hex;
-            textInd.title = C64.COLORS[this.editor.currentColor].name;
+            const color = getColor(this.editor.currentColor);
+            textInd.style.backgroundColor = color.hex;
+            textInd.title = color.name;
         }
 
         // Update active indicators in palettes
@@ -368,6 +388,58 @@ class App {
             };
             reader.readAsText(file);
         });
+
+        // Import PRG files (Kaleidoscope, etc.)
+        document.getElementById('btn-import-prg')?.addEventListener('click', () => {
+            document.getElementById('prg-upload').click();
+        });
+
+        document.getElementById('prg-upload')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            e.target.value = ''; // Clear so same file can be selected again
+            
+            try {
+                const state = await this.patcher.importPRG(file);
+                this.editor.charSet = 0; // Set to uppercase/graphics mode for imported files
+                this.charEditor.charSet = 0;
+                document.getElementById('btn-charset').textContent = 'CHARSET: UPPER';
+                this.editor.loadScreen(state.screen, state.color, state.borderColor, state.bgColor);
+                this._updateColorIndicators();
+                this.editor.render();
+                this._buildCharPicker();
+                alert('PRG file imported successfully!');
+            } catch (err) {
+                alert('Error importing PRG: ' + err.message);
+            }
+        });
+
+        // Import SEQ files (Kaleidoscope, etc.)
+        document.getElementById('btn-import-seq')?.addEventListener('click', () => {
+            document.getElementById('seq-upload').click();
+        });
+
+        document.getElementById('seq-upload')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            e.target.value = ''; // Clear so same file can be selected again
+            
+            try {
+                const state = await this.patcher.importSEQ(file);
+                this.editor.charSet = 0; // Set to uppercase/graphics mode for imported files
+                this.charEditor.charSet = 0;
+                document.getElementById('btn-charset').textContent = 'CHARSET: UPPER';
+                this.editor.loadScreen(state.screen, state.color, state.borderColor, state.bgColor);
+                this._updateColorIndicators();
+                this.editor.render();
+                this._buildCharPicker();
+                alert('SEQ file imported successfully!');
+            } catch (err) {
+                alert('Error importing SEQ: ' + err.message);
+            }
+        });
     }
 
     /**
@@ -390,7 +462,7 @@ class App {
                 this.editor.bgColor,
                 this.editor.currentColor
             );
-            this.patcher.downloadROM(patched, 'kernal-simple.bin');
+            this.patcher.downloadROM(patched, `kernal-simple-${this._getTimestamp()}.bin`);
         } catch (err) {
             alert('Error patching ROM: ' + err.message);
         }
@@ -410,7 +482,7 @@ class App {
 
         try {
             const patched = this.patcher.patchExtended(state);
-            this.patcher.downloadROM(patched, 'kernal-extended.bin');
+            this.patcher.downloadROM(patched, `kernal-extended-${this._getTimestamp()}.bin`);
         } catch (err) {
             alert('Error patching ROM: ' + err.message);
         }
@@ -629,5 +701,30 @@ class App {
 
 // Initialize app when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    // Set build time in header
+    const buildTimeEl = document.getElementById('build-time');
+    if (buildTimeEl) {
+        // Try to use document.lastModified, fallback to current time
+        let buildDate, buildTime;
+        try {
+            const lastMod = new Date(document.lastModified);
+            if (!isNaN(lastMod.getTime())) {
+                buildDate = lastMod.toLocaleDateString();
+                buildTime = lastMod.toLocaleTimeString();
+            } else {
+                throw new Error('Invalid date');
+            }
+        } catch (e) {
+            // Fallback to current time
+            const now = new Date();
+            buildDate = now.toLocaleDateString();
+            buildTime = now.toLocaleTimeString();
+        }
+        buildTimeEl.textContent = ` | Build: ${buildDate} ${buildTime}`;
+        console.log('Build time set:', buildDate, buildTime);
+    } else {
+        console.warn('Build time element not found!');
+    }
+    
     window.app = new App();
 });

@@ -13,6 +13,7 @@
 <header class="app-header">
     <h1>C64 Boot Screen Editor</h1>
     <span class="subtitle">Design custom Commodore 64 startup screens</span>
+    <span class="subtitle build-info" id="build-time"></span>
 </header>
 
 <!-- Main Layout -->
@@ -225,6 +226,22 @@
                 </div>
                 <p style="font-size:11px;color:var(--c64-text-dim);margin-top:8px">
                     Save/load screen designs for sharing or later editing.
+                </p>
+            </div>
+
+            <div class="panel-section">
+                <h3>Import from External Tools</h3>
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-bottom:8px">
+                    Import PETSCII screens from Kaleidoscope and other editors
+                </p>
+                <div class="btn-group">
+                    <button class="btn-secondary" id="btn-import-prg">Import .PRG</button>
+                    <button class="btn-secondary" id="btn-import-seq">Import .SEQ</button>
+                </div>
+                <input type="file" id="prg-upload" class="hidden" accept=".prg,.bin">
+                <input type="file" id="seq-upload" class="hidden" accept=".seq">
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-top:8px">
+                    Supports Kaleidoscope exports, standard PRG/SEQ formats
                 </p>
             </div>
 

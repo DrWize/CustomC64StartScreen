@@ -48,6 +48,12 @@ body {
     font-size: 12px;
 }
 
+.app-header .build-info {
+    color: var(--c64-text-dim);
+    font-size: 10px;
+    margin-left: 8px;
+}
+
 /* ── Main Layout ─────────────────────────────────────────────────── */
 
 .app-layout {

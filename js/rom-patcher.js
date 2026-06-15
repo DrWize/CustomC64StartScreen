@@ -671,4 +671,177 @@ class RomPatcher {
         
         return state;
     }
+
+    // ── Import PRG Files ────────────────────────────────────────────────────
+
+    /**
+     * Imports a C64 PRG file containing screen data.
+     * Supports Kaleidoscope exports and other standard PRG formats.
+     * @param {File} file - The PRG file to import
+     * @returns {Promise<Object>} Promise that resolves with screen state
+     */
+    importPRG(file) {
+        // Safety check: ensure C64 constants are available
+        if (typeof C64 === 'undefined' || !C64.SCREEN_SIZE || !C64.COLORS) {
+            return Promise.reject(new Error('C64 constants not loaded'));
+        }
+        
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    
+                    // PRG format: first 2 bytes = load address
+                    if (data.length < 2) {
+                        throw new Error('Invalid PRG file: too small');
+                    }
+                    
+                    const loadAddr = (data[1] << 8) | data[0];
+                    const prgData = data.slice(2);
+                    
+                    let screenData = null;
+                    let colorData = null;
+                    let borderColor = null;
+                    let bgColor = null;
+                    
+                    // Handle different PRG formats
+                    if (loadAddr === 0x0400 && prgData.length >= 2000) {
+                        // Standard format: screen at $0400 + color at $D800
+                        screenData = prgData.slice(0, C64.SCREEN_SIZE);
+                        colorData = prgData.slice(C64.SCREEN_SIZE, C64.SCREEN_SIZE * 2);
+                        
+                        // Optional border/bg colors at end
+                        if (prgData.length >= 2002) {
+                            borderColor = prgData[2000];
+                            bgColor = prgData[2001];
+                        }
+                    } else if (loadAddr === 0x2000 && prgData.length >= 2000) {
+                        // Alternative format starting at $2000
+                        // Some tools store screen+color sequentially
+                        screenData = prgData.slice(0, C64.SCREEN_SIZE);
+                        colorData = prgData.slice(C64.SCREEN_SIZE, C64.SCREEN_SIZE * 2);
+                    } else if (prgData.length === C64.SCREEN_SIZE) {
+                        // Screen data only (no colors)
+                        screenData = prgData.slice(0, C64.SCREEN_SIZE);
+                        colorData = new Uint8Array(C64.SCREEN_SIZE);
+                    } else if (prgData.length >= C64.SCREEN_SIZE) {
+                        // Try to extract screen data from whatever is there
+                        screenData = prgData.slice(0, C64.SCREEN_SIZE);
+                        if (prgData.length >= C64.SCREEN_SIZE * 2) {
+                            colorData = prgData.slice(C64.SCREEN_SIZE, C64.SCREEN_SIZE * 2);
+                        }
+                    }
+                    
+                    if (!screenData) {
+                        throw new Error(`Unsupported PRG format: load address $${loadAddr.toString(16).toUpperCase()}, size ${prgData.length}`);
+                    }
+                    
+                    // Ensure we have color data
+                    if (!colorData) {
+                        colorData = new Uint8Array(C64.SCREEN_SIZE);
+                    }
+                    
+                    // Validate screen data
+                    if (screenData.length !== C64.SCREEN_SIZE) {
+                        throw new Error(`Invalid screen size: ${screenData.length} (expected ${C64.SCREEN_SIZE})`);
+                    }
+                    
+                    // Clamp color values to 0-15
+                    for (let i = 0; i < colorData.length; i++) {
+                        colorData[i] = (colorData[i] || 0) & 0x0F;
+                    }
+                    
+                    // Set defaults if border/bg colors not in file
+                    if (borderColor === null || borderColor === undefined) {
+                        borderColor = 6; // Default: blue (common C64 border)
+                    } else {
+                        borderColor = borderColor & 0x0F;
+                    }
+                    if (bgColor === null || bgColor === undefined) {
+                        bgColor = 0; // Default: black
+                    } else {
+                        bgColor = bgColor & 0x0F;
+                    }
+                    
+                    resolve({
+                        screen: Array.from(screenData),
+                        color: Array.from(colorData),
+                        borderColor: borderColor,
+                        bgColor: bgColor
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            };
+            reader.onerror = () => reject(new Error('Failed to read PRG file'));
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    // ── Import SEQ Files ────────────────────────────────────────────────────
+
+    /**
+     * Imports a C64 SEQ file containing screen data.
+     * Supports Kaleidoscope exports and standard SEQ formats.
+     * @param {File} file - The SEQ file to import
+     * @returns {Promise<Object>} Promise that resolves with screen state
+     */
+    importSEQ(file) {
+        // Safety check: ensure C64 constants are available
+        if (typeof C64 === 'undefined' || !C64.SCREEN_SIZE || !C64.COLORS) {
+            return Promise.reject(new Error('C64 constants not loaded'));
+        }
+        
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    
+                    let screenData = null;
+                    let colorData = null;
+                    
+                    if (data.length >= C64.SCREEN_SIZE * 2) {
+                        // Standard SEQ: screen + color
+                        screenData = data.slice(0, C64.SCREEN_SIZE);
+                        colorData = data.slice(C64.SCREEN_SIZE, C64.SCREEN_SIZE * 2);
+                    } else if (data.length === C64.SCREEN_SIZE) {
+                        // Screen only
+                        screenData = data.slice(0, C64.SCREEN_SIZE);
+                        colorData = new Uint8Array(C64.SCREEN_SIZE);
+                    } else {
+                        throw new Error(`Invalid SEQ file size: ${data.length} (expected ${C64.SCREEN_SIZE} or ${C64.SCREEN_SIZE * 2})`);
+                    }
+                    
+                    // Validate screen data
+                    if (screenData.length !== C64.SCREEN_SIZE) {
+                        throw new Error(`Invalid screen size: ${screenData.length} (expected ${C64.SCREEN_SIZE})`);
+                    }
+                    
+                    // Ensure we have color data
+                    if (!colorData || colorData.length !== C64.SCREEN_SIZE) {
+                        colorData = new Uint8Array(C64.SCREEN_SIZE);
+                    }
+                    
+                    // Clamp color values to 0-15
+                    for (let i = 0; i < colorData.length; i++) {
+                        colorData[i] = (colorData[i] || 0) & 0x0F;
+                    }
+                    
+                    // SEQ files don't include border/bg colors, use defaults
+                    resolve({
+                        screen: Array.from(screenData),
+                        color: Array.from(colorData),
+                        borderColor: 6,  // Default: blue
+                        bgColor: 0       // Default: black
+                    });
+                } catch (err) {
+                    reject(err);
+                }
+            };
+            reader.onerror = () => reject(new Error('Failed to read SEQ file'));
+            reader.readAsArrayBuffer(file);
+        });
+    }
 }

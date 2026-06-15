@@ -513,6 +513,11 @@ class ScreenEditor {
      * Draws the 40x25 grid with characters and per-cell colors.
      */
     render() {
+        // Final safety check for colors
+        if (!this.borderColor || this.borderColor >= C64.COLORS.length) this.borderColor = 6;
+        if (!this.bgColor || this.bgColor >= C64.COLORS.length) this.bgColor = 0;
+        if (!this.currentColor || this.currentColor >= C64.COLORS.length) this.currentColor = 14;
+        
         const ctx = this.ctx;
         const s = this.scale;
         const bw = C64.CHAR_WIDTH * s;
@@ -520,23 +525,25 @@ class ScreenEditor {
         const bs = this.borderSize;
 
         // Draw border
-        ctx.fillStyle = C64.COLORS[this.borderColor].hex;
+        const borderColorSafe = Math.min((this.borderColor || 0) & 0x0F, C64.COLORS.length - 1);
+        ctx.fillStyle = C64.COLORS[borderColorSafe].hex;
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw background
-        ctx.fillStyle = C64.COLORS[this.bgColor].hex;
+        const bgColorSafe = Math.min((this.bgColor || 0) & 0x0F, C64.COLORS.length - 1);
+        ctx.fillStyle = C64.COLORS[bgColorSafe].hex;
         ctx.fillRect(bs, bs, C64.SCREEN_COLS * bw, C64.SCREEN_ROWS * bh);
 
         // Draw each character cell
         const charsetOffset = this.charSet * C64.CHARSET_HALF;
-        const bgCol = C64.COLORS[this.bgColor];
+        const bgCol = C64.COLORS[Math.min(this.bgColor || 0, C64.COLORS.length - 1)];
 
         for (let row = 0; row < C64.SCREEN_ROWS; row++) {
             for (let col = 0; col < C64.SCREEN_COLS; col++) {
                 const idx = row * C64.SCREEN_COLS + col;
                 const sc = this.screenData[idx];
-                const fgColorIdx = this.colorData[idx];
-                const fgCol = C64.COLORS[fgColorIdx];
+                const fgColorIdx = this.colorData[idx] || 0;
+                const fgCol = C64.COLORS[Math.min(fgColorIdx & 0x0F, C64.COLORS.length - 1)];
 
                 this._drawChar(
                     bs + col * bw, bs + row * bh,
@@ -547,7 +554,8 @@ class ScreenEditor {
 
         // Draw preview overlay (line/rect tool)
         if (this.previewOverlay && this.previewOverlay.length > 0) {
-            const fgCol = C64.COLORS[this.currentColor];
+            const cursorColorSafe = Math.min((this.currentColor || 0) & 0x0F, C64.COLORS.length - 1);
+            const fgCol = C64.COLORS[cursorColorSafe];
             for (const p of this.previewOverlay) {
                 const row = Math.floor(p.idx / C64.SCREEN_COLS);
                 const col = p.idx % C64.SCREEN_COLS;
@@ -565,7 +573,8 @@ class ScreenEditor {
             const x = bs + col * bw;
             const y = bs + row * bh;
             // Draw full block cursor
-            ctx.fillStyle = C64.COLORS[this.currentColor].hex;
+            const cursorColorSafe = Math.min((this.currentColor || 0) & 0x0F, C64.COLORS.length - 1);
+            ctx.fillStyle = C64.COLORS[cursorColorSafe].hex;
             ctx.fillRect(x, y, bw, bh);
         }
 
@@ -627,8 +636,12 @@ class ScreenEditor {
         const charIdx = screenCode & 0x7F;
         const isReversed = (screenCode & 0x80) !== 0;
         const romOffset = charsetOffset + charIdx * 8;
-        const fgCol = C64.COLORS[fgColorIdx !== undefined ? fgColorIdx : this.currentColor];
-        const bgCol = C64.COLORS[bgColorIdx !== undefined ? bgColorIdx : this.bgColor];
+        
+        // Safe color index handling
+        const fgIdx = Math.min(((fgColorIdx !== undefined ? fgColorIdx : this.currentColor) || 0) & 0x0F, C64.COLORS.length - 1);
+        const bgIdx = Math.min(((bgColorIdx !== undefined ? bgColorIdx : this.bgColor) || 0) & 0x0F, C64.COLORS.length - 1);
+        const fgCol = C64.COLORS[fgIdx];
+        const bgCol = C64.COLORS[bgIdx];
 
         for (let py = 0; py < 8; py++) {
             let rowBits = this.chargenROM[romOffset + py] || 0;
