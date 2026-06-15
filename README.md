@@ -130,7 +130,7 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
 
 ### Import from External Tools
 
-**Kaleidoscope Support**: The editor can import screen designs from [Kaleidoscope](https://github.com/cloaked0x/Kaleidoscope), a popular C64 graphics editor.
+**Kaleidoscope Support**: The editor can import screen designs from Kaleidoscope. Get it from [CSDB](https://csdb.dk/release/?id=257846) or follow updates at [KSReloaded Facebook](https://www.facebook.com/ksreloaded/).
 
 - **.PRG files**: Import Kaleidoscope-exported PRG files containing screen data (with or without color RAM). PRG files preserve border/background colors.
 - **.SEQ files**: Import Kaleidoscope SEQ files (screen + color data). SEQ files do NOT store border/background colors and default to blue border/black background on import. Use the CHARSET toggle (UPPER/LOWER button) if characters display incorrectly.
