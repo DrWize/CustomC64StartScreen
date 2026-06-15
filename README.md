@@ -66,6 +66,8 @@ docker run --rm -it -p 8064:8064 \
     c64boot-editor
 ```
 
+**Note**: Docker images now include automatic cache-busting — you no longer need `--no-cache` flag. Each build generates a unique layer that prevents stale caches.
+
 ### Option 2: Python HTTP Server
 
 If you don't have Docker, you can use Python's built-in HTTP server:
@@ -113,7 +115,7 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
   - Auto-detects cursor position: BASIC's "READY." prompt lands 2 rows below your design
   - Sets text color for READY. to match your design's dominant color
   - Jumps to BASIC warm start (`$A644`) for normal input loop
-- **Timestamped exports**: Patched ROM downloads now include date/time in filenames (e.g., `kernal-extended-2026-06-15T12-30-45.bin`)
+- **Timestamped exports**: All downloads (KERNAL ROM, .PRG, .SEQ, .JSON, Chargen ROM) now include date/time in filenames for automatic uniqueness (e.g., `kernal-extended-2026-06-15T12-30-45.bin`, `bootscreen-2026-06-15T12-30-45.prg`)
 - **Status bar** shows where the cursor/READY. will appear after boot
 
 ### Export & Output Formats
@@ -121,18 +123,19 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
 - **Patched KERNAL ROM** (.bin) — This is what you want for actually changing your boot screen. Upload your original KERNAL ROM in the ROM tab, design your screen, then download the patched `.bin`. In VICE: Settings > Machine > KERNAL and point to your patched file. On real hardware: burn to EPROM.
   - *Simple mode*: changes startup text + colors only
   - *Extended mode*: injects your full PETSCII screen design with custom 6502 code
-- **.PRG file** — A standalone C64 program for quick preview/testing. Load it in VICE with `LOAD "BOOTSCREEN.PRG",8,1` then `RUN`. Displays your screen and waits for a keypress, then returns to BASIC. This does NOT modify your KERNAL — it's just for previewing.
-- **JSON** — Export/import screen designs for sharing or later editing
-- **Chargen ROM** (.bin) — Download modified character set for use as a replacement chargen ROM
+- **.PRG file** — A standalone C64 program for quick preview/testing. Load it in VICE with `LOAD "BOOTSCREEN.PRG",8,1` then `RUN`. Displays your screen and waits for a keypress, then returns to BASIC. This does NOT modify your KERNAL — it's just for previewing. Filenames include timestamps for uniqueness.
+- **SEQ file** (.seq) — Raw screen + color data (2000 bytes). Compact format for C64 tools. Does NOT store border/background colors.
+- **JSON** — Export/import screen designs for sharing or later editing. Preserves complete state including border/background colors.
+- **Chargen ROM** (.bin) — Download modified character set for use as a replacement chargen ROM. Filenames include timestamps.
 
 ### Import from External Tools
 
 **Kaleidoscope Support**: The editor can import screen designs from [Kaleidoscope](https://github.com/cloaked0x/Kaleidoscope), a popular C64 graphics editor.
 
-- **.PRG files**: Import Kaleidoscope-exported PRG files containing screen data (with or without color RAM)
-- **.SEQ files**: Import Kaleidoscope SEQ files (screen + color data)
-- **How to use**: In the Export tab, click "Import .PRG" or "Import .SEQ" and select your file. The design will load directly into the editor.
-- **Note**: Imported designs use uppercase/graphics character set by default.
+- **.PRG files**: Import Kaleidoscope-exported PRG files containing screen data (with or without color RAM). PRG files preserve border/background colors.
+- **.SEQ files**: Import Kaleidoscope SEQ files (screen + color data). SEQ files do NOT store border/background colors and default to blue border/black background on import. Use the CHARSET toggle (UPPER/LOWER button) if characters display incorrectly.
+- **How to use**: In the File tab, click "Import .PRG" or "Import .SEQ" and select your file. The design will load directly into the editor.
+- **Note**: Imported designs use uppercase/graphics character set by default. Use the CHARSET button to toggle between uppercase and lowercase modes.
 
 ### Keyboard Shortcuts
 | Key | Tool |
@@ -182,12 +185,16 @@ C64Boot/
   js/
     c64-data.js              - Chargen ROM data, color palette, PETSCII mappings
     screen-editor.js         - Canvas-based 40x25 PETSCII editor
-    rom-patcher.js           - KERNAL ROM patching + .PRG export + RLE compression
+    rom-patcher.js           - KERNAL ROM patching + .PRG/.SEQ import/export + RLE compression
     chargen-editor.js        - 8x8 pixel character editor
     templates.js             - Boot screen templates
     app.js                   - Main app controller
-  fonts/                     - Chargen ROM .bin files (not in repo, see below)
-  kernal/                    - Your KERNAL ROM files (not in repo)
+  fonts/                     - Chargen ROM .bin files (not in repo, see Font Files below)
+  kernal/                    - Your KERNAL ROM files (not in repo, see KERNAL ROM below)
+  test-files/                - Test data for import functionality
+  Dockerfile                 - Docker image with Apache HTTPD
+  docker-compose.yml         - Docker Compose configuration
+  start-server-docker.*    - Docker startup scripts
 ```
 
 ## 🏗️ Architecture Diagram

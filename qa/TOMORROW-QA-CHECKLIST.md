@@ -28,11 +28,11 @@
 ## 📁 **IMPORT FEATURE TESTS**
 
 ### **Test 1: PRG File Import**
-1. [ ] Click **"Export"** tab (right panel)
+1. [ ] Click **"File"** tab (right panel)
 2. [ ] **Import from External Tools** section is visible
 3. [ ] Click **"Import .PRG"** button
 4. [ ] File picker opens
-5. [ ] Select `kaleidoscope-test.prg` (2002 bytes)
+5. [ ] Select `test-files/kaleidoscope-test.prg` (2002 bytes)
 6. [ ] **Expected**: Design loads with borders and text
 7. [ ] **Verify**: White text "C64 BOOT TEST SCREEN" and "BY KALEIDOSCOPE" appear
 8. [ ] **Verify**: White asterisk borders at top and bottom
@@ -43,7 +43,7 @@
 ### **Test 2: SEQ File Import (Screen + Colors)**
 1. [ ] Click **"Import .SEQ"** button
 2. [ ] File picker opens
-3. [ ] Select `kaleidoscope-test.seq` (2000 bytes)
+3. [ ] Select `test-files/kaleidoscope-test.seq` (2000 bytes)
 4. [ ] **Expected**: Design loads with borders, text, and colors
 5. [ ] **Verify**: Same design as PRG test
 6. [ ] **Verify**: Light blue background, white text
@@ -53,7 +53,7 @@
 
 ### **Test 3: SEQ File Import (Screen Only)**
 1. [ ] Click **"Import .SEQ"** button
-2. [ ] Select `kaleidoscope-test-screen-only.seq` (1000 bytes)
+2. [ ] Select `test-files/kaleidoscope-test-screen-only.seq` (1000 bytes)
 3. [ ] **Expected**: Design loads with screen codes (colors may be default)
 4. [ ] **Verify**: Text and borders appear
 5. [ ] **Verify**: No errors in console
