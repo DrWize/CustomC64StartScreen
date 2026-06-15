@@ -113,6 +113,7 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
   - Auto-detects cursor position: BASIC's "READY." prompt lands 2 rows below your design
   - Sets text color for READY. to match your design's dominant color
   - Jumps to BASIC warm start (`$A644`) for normal input loop
+- **Timestamped exports**: Patched ROM downloads now include date/time in filenames (e.g., `kernal-extended-2026-06-15T12-30-45.bin`)
 - **Status bar** shows where the cursor/READY. will appear after boot
 
 ### Export & Output Formats
@@ -123,6 +124,15 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
 - **.PRG file** — A standalone C64 program for quick preview/testing. Load it in VICE with `LOAD "BOOTSCREEN.PRG",8,1` then `RUN`. Displays your screen and waits for a keypress, then returns to BASIC. This does NOT modify your KERNAL — it's just for previewing.
 - **JSON** — Export/import screen designs for sharing or later editing
 - **Chargen ROM** (.bin) — Download modified character set for use as a replacement chargen ROM
+
+### Import from External Tools
+
+**Kaleidoscope Support**: The editor can import screen designs from [Kaleidoscope](https://github.com/cloaked0x/Kaleidoscope), a popular C64 graphics editor.
+
+- **.PRG files**: Import Kaleidoscope-exported PRG files containing screen data (with or without color RAM)
+- **.SEQ files**: Import Kaleidoscope SEQ files (screen + color data)
+- **How to use**: In the Export tab, click "Import .PRG" or "Import .SEQ" and select your file. The design will load directly into the editor.
+- **Note**: Imported designs use uppercase/graphics character set by default.
 
 ### Keyboard Shortcuts
 | Key | Tool |

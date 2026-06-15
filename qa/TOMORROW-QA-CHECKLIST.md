@@ -183,10 +183,11 @@
 
 | Category | Status | Notes |
 |----------|--------|-------|
-| **Header displays build time** | ✅ / ❌ | |
-| **PRG import works** | ✅ / ❌ | |
-| **SEQ import works** | ✅ / ❌ | |
-| **ROM patching works** | ✅ / ❌ | |
+| **Header displays build time** | ✅ | Added 6/15/2026 |
+| **PRG import works** | ✅ | Kaleidoscope format supported |
+| **SEQ import works** | ✅ | Kaleidoscope format supported |
+| **ROM patching works** | ✅ | Both simple and extended modes |
+| **ROM exports have timestamps** | ✅ | Files named with date/time |
 | **All drawing tools work** | ✅ / ❌ | |
 | **Color pickers work** | ✅ / ❌ | |
 | **Templates load** | ✅ / ❌ | |
