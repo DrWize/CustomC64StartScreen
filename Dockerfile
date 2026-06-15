@@ -4,6 +4,9 @@
 
 FROM httpd:2.4-alpine
 
+# Cache-busting: use current date to ensure fresh builds
+RUN echo "Building at: $(date)" > /dev/null
+
 # Copy application files to htdocs
 COPY . /usr/local/apache2/htdocs
 

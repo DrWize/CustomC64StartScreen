@@ -3,10 +3,20 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="cache-buster" content="true">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>C64 Boot Screen Editor</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="css/styles.css">
+    <script>
+      // Dynamic cache buster - toggle with <meta name="cache-buster" content="true/false">
+      var useCacheBuster = (document.querySelector('meta[name="cache-buster"]')?.content || 'true') !== 'false';
+      var cacheBust = useCacheBuster ? Date.now() : '';
+      var cacheSuffix = cacheBust ? '?v=' + cacheBust : '';
+      document.write('<link rel="icon" href="favicon.ico' + cacheSuffix + '" type="image/x-icon">');
+      document.write('<link rel="stylesheet" href="css/styles.css' + cacheSuffix + '">');
+    </script>
 </head>
 <body>
 
@@ -108,7 +118,7 @@
             <button class="tab-btn active" data-tab="templates">Templates</button>
             <button class="tab-btn" data-tab="rom">ROM</button>
             <button class="tab-btn" data-tab="chargen">Chargen</button>
-            <button class="tab-btn" data-tab="export">Export</button>
+            <button class="tab-btn" data-tab="file">File</button>
         </div>
 
         <!-- Tab: Templates -->
@@ -216,8 +226,8 @@
             </div>
         </div>
 
-        <!-- Tab: Export -->
-        <div class="tab-panel" id="tab-export">
+        <!-- Tab: File -->
+        <div class="tab-panel" id="tab-file">
             <div class="panel-section">
                 <h3>Export Screen Design</h3>
                 <div class="btn-group">
@@ -242,18 +252,38 @@
                 <input type="file" id="prg-upload" class="hidden" accept=".prg,.bin">
                 <input type="file" id="seq-upload" class="hidden" accept=".seq">
                 <p style="font-size:11px;color:var(--c64-text-dim);margin-top:8px">
-                    Supports Kaleidoscope exports, standard PRG/SEQ formats
+                    Supports Kaleidoscope exports, standard PRG/SEQ formats.<br>
+                    <strong>Charset note:</strong> PRG files preserve uppercase/lowercase mode. 
+                    SEQ files import as uppercase by default — use the CHARSET toggle 
+                    (UPPER/LOWER button) if characters display incorrectly.
                 </p>
             </div>
 
             <div class="panel-section">
-                <h3>Export as .PRG</h3>
+                <h3>Export Boot Screen</h3>
                 <div class="btn-group">
                     <button class="btn-primary" id="btn-download-prg">Download .PRG</button>
+                    <button class="btn-primary" id="btn-download-seq">Download .SEQ</button>
                 </div>
                 <p style="font-size:11px;color:var(--c64-text-dim);margin-top:8px">
-                    Creates a C64 executable (.prg) that displays your boot screen.
+                    Creates a C64 executable (.prg) or raw screen dump (.seq) that displays your boot screen.
                     Load in VICE or transfer to real hardware. Press any key to exit.
+                </p>
+            </div>
+            <div class="panel-section">
+                <h3>About File Formats</h3>
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-bottom:8px">
+                    <strong>PRG format:</strong> C64 executable. Stores screen + colors + border/background colors. 
+                    Loads directly in VICE. Larger file size due to BASIC stub and machine code.
+                </p>
+                <p style="font-size:11px;color:var(--c64-text-dim);margin-bottom:8px">
+                    <strong>SEQ format:</strong> Raw binary (2000 bytes: screen codes + color codes). 
+                    Compact, fast, ideal for direct use with C64 tools. Does NOT store border/background colors 
+                    (defaults to blue border, black background on import).
+                </p>
+                <p style="font-size:11px;color:var(--c64-text-dim);">
+                    <strong>JSON format:</strong> Human-readable text. Stores complete state including 
+                    border/background colors. Largest file size but easiest to edit and share.
                 </p>
             </div>
         </div>
@@ -261,12 +291,23 @@
 </div>
 
 <!-- Scripts (order matters) -->
-<script src="js/c64-data.js"></script>
-<script src="js/screen-editor.js"></script>
-<script src="js/rom-patcher.js"></script>
-<script src="js/chargen-editor.js"></script>
-<script src="js/templates.js"></script>
-<script src="js/app.js"></script>
+<script>
+  // Apply cache buster to script tags
+  var useCacheBuster = (document.querySelector('meta[name="cache-buster"]')?.content || 'true') !== 'false';
+  var cacheBust = useCacheBuster ? Date.now() : '';
+  var cacheSuffix = cacheBust ? '?v=' + cacheBust : '';
+  var scripts = [
+    'js/c64-data.js',
+    'js/screen-editor.js', 
+    'js/rom-patcher.js',
+    'js/chargen-editor.js',
+    'js/templates.js',
+    'js/app.js'
+  ];
+  scripts.forEach(function(src) {
+    document.write('<script src="' + src + cacheSuffix + '"><\/script>');
+  });
+</script>
 
 </body>
 </html>

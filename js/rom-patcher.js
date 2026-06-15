@@ -844,4 +844,52 @@ class RomPatcher {
             reader.readAsArrayBuffer(file);
         });
     }
+
+    // -- Export as SEQ --------------------------------------------------------
+
+    /**
+     * Exports a screen design as a SEQ file (raw binary format).
+     * SEQ format: screen codes (1000 bytes) + color codes (1000 bytes)
+     * @param {Object} screenState - The screen state to export
+     * @param {Array} screenState.screen - Screen codes (1000 elements)
+     * @param {Array} screenState.color - Color codes (1000 elements)
+     * @returns {Uint8Array} SEQ file data as Uint8Array
+     */
+    exportSEQ(screenState) {
+        if (typeof C64 === 'undefined' || !C64.SCREEN_SIZE) {
+            throw new Error('C64 constants not loaded');
+        }
+
+        const screen = screenState.screen || [];
+        const color = screenState.color || [];
+
+        if (screen.length !== C64.SCREEN_SIZE || color.length !== C64.SCREEN_SIZE) {
+            throw new Error(`Invalid screen state: expected ${C64.SCREEN_SIZE} elements`);
+        }
+
+        // SEQ format: screen data + color data (2000 bytes total)
+        const seqData = new Uint8Array(C64.SCREEN_SIZE * 2);
+        seqData.set(screen, 0);
+        seqData.set(color, C64.SCREEN_SIZE);
+
+        return seqData;
+    }
+
+    /**
+     * Triggers a download of the screen state as a SEQ file.
+     * @param {Object} screenState - The screen state to export
+     * @param {string} filename - The filename to use for download
+     */
+    downloadSEQ(screenState, filename) {
+        const data = this.exportSEQ(screenState);
+        const blob = new Blob([data], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename || 'bootscreen.seq';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
 }

@@ -347,11 +347,16 @@ class App {
 
         document.getElementById('btn-download-prg')?.addEventListener('click', () => {
             const state = this.editor.getScreenState();
-            this.patcher.downloadPRG(state, 'bootscreen.prg');
+            this.patcher.downloadPRG(state, `bootscreen-${this._getTimestamp()}.prg`);
+        });
+
+        document.getElementById('btn-download-seq')?.addEventListener('click', () => {
+            const state = this.editor.getScreenState();
+            this.patcher.downloadSEQ(state, `bootscreen-${this._getTimestamp()}.seq`);
         });
 
         document.getElementById('btn-download-chargen')?.addEventListener('click', () => {
-            this.patcher.downloadChargen(this.editor.chargenROM, 'chargen-custom.bin');
+            this.patcher.downloadChargen(this.editor.chargenROM, `chargen-custom-${this._getTimestamp()}.bin`);
         });
 
         // Export/Import JSON
@@ -362,7 +367,7 @@ class App {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'bootscreen.json';
+            a.download = `bootscreen-${this._getTimestamp()}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -710,7 +715,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const lastMod = new Date(document.lastModified);
             if (!isNaN(lastMod.getTime())) {
                 buildDate = lastMod.toLocaleDateString();
-                buildTime = lastMod.toLocaleTimeString();
+                buildTime = lastMod.toLocaleTimeString([], { hour12: false });
             } else {
                 throw new Error('Invalid date');
             }
@@ -718,7 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Fallback to current time
             const now = new Date();
             buildDate = now.toLocaleDateString();
-            buildTime = now.toLocaleTimeString();
+            buildTime = now.toLocaleTimeString([], { hour12: false });
         }
         buildTimeEl.textContent = ` | Build: ${buildDate} ${buildTime}`;
         console.log('Build time set:', buildDate, buildTime);

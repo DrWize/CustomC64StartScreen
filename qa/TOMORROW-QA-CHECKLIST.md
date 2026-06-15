@@ -10,7 +10,7 @@
 
 ### ✅ Environment Preparation (5 minutes)
 - [ ] **From Local Folder**: Open `E:\ai\C64Boot\index.html` in Chrome/Edge/Firefox
-- [ ] **From Docker**: Run `docker-compose build --no-cache && docker-compose up -d` then open `http://localhost:8064`
+- [ ] **From Docker**: Run `docker-compose build && docker-compose up -d` then open `http://localhost:8064`
 - [ ] **Clear browser cache**: `Ctrl+Shift+Delete` → Clear cached images and files
 - [ ] **Hard refresh**: Press `Ctrl+F5` to ensure latest files
 
@@ -204,7 +204,7 @@
 ### If Import Doesn't Work:
 1. **Check console**: F12 → Console → Any red errors?
 2. **Hard refresh**: `Ctrl+F5` (cached files issue)
-3. **Rebuild Docker**: `docker-compose build --no-cache && docker-compose up -d`
+3. **Rebuild Docker**: `docker-compose build && docker-compose up -d`
 4. **Test from file://**: Open `index.html` directly to isolate Docker issues
 5. **Verify files exist**: Check `kaleidoscope-test.prg` and `.seq` files are in the folder
 

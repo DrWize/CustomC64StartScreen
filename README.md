@@ -149,6 +149,26 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
 | Ctrl+Y | Redo |
 | Right-click | Pick char + color from screen |
 
+## Developer Functionality
+
+### Cache Busting
+
+The editor includes a **dynamic cache buster** to prevent browsers from loading stale CSS and JavaScript files during development. This feature is enabled by default.
+
+**How it works:**
+- All asset URLs (CSS, JS, favicon) automatically receive a `?v=<timestamp>` parameter
+- The timestamp is generated dynamically using `Date.now()` (milliseconds since epoch)
+- This ensures browsers always fetch the latest version of files
+
+**Toggle cache busting:**
+To disable cache busting, change the meta tag in `index.html`:
+```html
+<meta name="cache-buster" content="true">   <!-- Enabled (default) -->
+<meta name="cache-buster" content="false">  <!-- Disabled -->
+```
+
+This is useful for development when you're frequently updating files, but can be disabled for production if desired.
+
 ## Usage
 
 Just open `index.html` directly in your browser — no build step, no server required. Pure HTML/CSS/JS.
