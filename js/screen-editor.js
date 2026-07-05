@@ -514,9 +514,11 @@ class ScreenEditor {
      */
     render() {
         // Final safety check for colors
-        if (!this.borderColor || this.borderColor >= C64.COLORS.length) this.borderColor = 6;
-        if (!this.bgColor || this.bgColor >= C64.COLORS.length) this.bgColor = 0;
-        if (!this.currentColor || this.currentColor >= C64.COLORS.length) this.currentColor = 14;
+        const isValidColor = (value) =>
+            Number.isInteger(value) && value >= 0 && value < C64.COLORS.length;
+        if (!isValidColor(this.borderColor)) this.borderColor = 6;
+        if (!isValidColor(this.bgColor)) this.bgColor = 0;
+        if (!isValidColor(this.currentColor)) this.currentColor = 14;
         
         const ctx = this.ctx;
         const s = this.scale;

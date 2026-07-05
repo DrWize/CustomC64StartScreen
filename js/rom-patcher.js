@@ -29,6 +29,12 @@ class RomPatcher {
                     reject(new Error(`Invalid KERNAL ROM size: ${data.length} bytes (expected ${C64.ROM.SIZE})`));
                     return;
                 }
+                try {
+                    this._validateKernalROM(data);
+                } catch (err) {
+                    reject(err);
+                    return;
+                }
                 this.romData = data;
                 this.romFileName = file.name;
                 resolve(this._readRomInfo());
@@ -36,6 +42,22 @@ class RomPatcher {
             reader.onerror = () => reject(new Error('Failed to read ROM file'));
             reader.readAsArrayBuffer(file);
         });
+    }
+
+    _validateKernalROM(rom) {
+        // KERNAL vectors at $FFFA-$FFFF must all point into the $E000-$FFFF ROM.
+        for (const offset of [0x1FFA, 0x1FFC, 0x1FFE]) {
+            const address = rom[offset] | (rom[offset + 1] << 8);
+            if (address < 0xE000) {
+                throw new Error('Unsupported KERNAL ROM: interrupt/reset vectors are not valid for an 8 KB C64 KERNAL');
+            }
+        }
+
+        // The fixed banner offsets used by simple mode require the standard layout.
+        const line1End = C64.ROM.LINE1_OFFSET + C64.ROM.LINE1_LENGTH;
+        if (rom[line1End - 2] !== 0x0D || rom[line1End - 1] !== 0x0D) {
+            throw new Error('Unsupported KERNAL ROM layout: startup banner was not found at the expected offsets');
+        }
     }
 
     /**
@@ -222,6 +244,11 @@ class RomPatcher {
 
         const rom = new Uint8Array(this.romData); // work on copy
         const { screen, color, borderColor, bgColor } = screenState;
+
+        const expectedHook = [0x20, 0x22, 0xE4]; // JSR $E422
+        if (!expectedHook.every((byte, index) => rom[0x039A + index] === byte)) {
+            throw new Error('Extended mode is not compatible with this KERNAL: expected startup hook JSR $E422 was not found');
+        }
 
         // Find where READY. should go - scan for last non-space row
         let cursorRow = 0;
@@ -574,12 +601,45 @@ class RomPatcher {
         code[colPatches.srcLoPatch] = colAddr & 0xFF;
         code[colPatches.srcHiPatch] = (colAddr >> 8) & 0xFF;
 
-        // Combine BASIC stub + code
-        const prg = new Uint8Array(basic.length + code.length);
+        // Append a self-identifying raw-data trailer so this app can import
+        // its own executable PRGs without interpreting machine code as screen data.
+        const trailer = this._buildPrgTrailer(screenState);
+
+        // Combine BASIC stub + code + import trailer
+        const prg = new Uint8Array(basic.length + code.length + trailer.length);
         prg.set(basic);
         prg.set(code, basic.length);
+        prg.set(trailer, basic.length + code.length);
 
         return prg;
+    }
+
+    _buildPrgTrailer(screenState) {
+        const marker = [0x43, 0x36, 0x34, 0x42, 0x4F, 0x4F, 0x54, 0x31]; // C64BOOT1
+        const trailer = new Uint8Array(marker.length + 2 + C64.SCREEN_SIZE * 2);
+        trailer.set(marker);
+        trailer[marker.length] = screenState.borderColor & 0x0F;
+        trailer[marker.length + 1] = screenState.bgColor & 0x0F;
+        trailer.set(screenState.screen, marker.length + 2);
+        trailer.set(screenState.color, marker.length + 2 + C64.SCREEN_SIZE);
+        return trailer;
+    }
+
+    _readPrgTrailer(data) {
+        const marker = [0x43, 0x36, 0x34, 0x42, 0x4F, 0x4F, 0x54, 0x31]; // C64BOOT1
+        const trailerLength = marker.length + 2 + C64.SCREEN_SIZE * 2;
+        if (data.length < trailerLength) return null;
+
+        const offset = data.length - trailerLength;
+        if (!marker.every((byte, index) => data[offset + index] === byte)) return null;
+
+        const screenOffset = offset + marker.length + 2;
+        return {
+            screen: Array.from(data.slice(screenOffset, screenOffset + C64.SCREEN_SIZE)),
+            color: Array.from(data.slice(screenOffset + C64.SCREEN_SIZE)),
+            borderColor: data[offset + marker.length] & 0x0F,
+            bgColor: data[offset + marker.length + 1] & 0x0F,
+        };
     }
 
     /**
@@ -699,6 +759,12 @@ class RomPatcher {
                     
                     const loadAddr = (data[1] << 8) | data[0];
                     const prgData = data.slice(2);
+
+                    const embeddedState = this._readPrgTrailer(data);
+                    if (embeddedState) {
+                        resolve(embeddedState);
+                        return;
+                    }
                     
                     let screenData = null;
                     let colorData = null;
@@ -725,8 +791,11 @@ class RomPatcher {
                         // Screen data only (no colors)
                         screenData = prgData.slice(0, C64.SCREEN_SIZE);
                         colorData = new Uint8Array(C64.SCREEN_SIZE);
-                    } else if (prgData.length >= C64.SCREEN_SIZE) {
-                        // Try to extract screen data from whatever is there
+                    } else if (
+                        loadAddr !== 0x0801 &&
+                        prgData.length >= C64.SCREEN_SIZE
+                    ) {
+                        // Legacy raw screen data with an uncommon load address.
                         screenData = prgData.slice(0, C64.SCREEN_SIZE);
                         if (prgData.length >= C64.SCREEN_SIZE * 2) {
                             colorData = prgData.slice(C64.SCREEN_SIZE, C64.SCREEN_SIZE * 2);

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   c64boot:
     image: c64boot-editor
