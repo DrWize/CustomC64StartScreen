@@ -1,6 +1,16 @@
 # C64 Boot Screen Editor
 
+[GitHub repository](https://github.com/DrWize/CustomC64StartScreen)
+
 A browser-based tool for designing custom Commodore 64 startup screens. Draw PETSCII art, pick from templates, edit character ROMs, and patch your KERNAL ROM with the result.
+
+## Screenshots
+
+![C64 Boot Screen Editor overview](docs/screenshots/editor-overview.png)
+
+| Character ROM editor | Import and export |
+| --- | --- |
+| ![Character ROM editor](docs/screenshots/chargen-editor.png) | ![Import and export tools](docs/screenshots/import-export.png) |
 
 ## Setup
 

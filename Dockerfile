@@ -4,6 +4,12 @@
 
 FROM httpd:2.4-alpine
 
+LABEL org.opencontainers.image.title="C64 Boot Screen Editor" \
+      org.opencontainers.image.description="Browser-based editor for custom Commodore 64 startup screens" \
+      org.opencontainers.image.source="https://github.com/DrWize/CustomC64StartScreen" \
+      org.opencontainers.image.url="https://github.com/DrWize/CustomC64StartScreen" \
+      org.opencontainers.image.licenses="MIT"
+
 # Cache-busting: use current date to ensure fresh builds
 RUN echo "Building at: $(date)" > /dev/null
 
