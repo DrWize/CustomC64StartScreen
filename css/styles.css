@@ -54,6 +54,20 @@ body {
     margin-left: 8px;
 }
 
+.app-header .github-link {
+    margin-left: auto;
+    color: var(--c64-light-blue);
+    font-size: 12px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.app-header .github-link:hover,
+.app-header .github-link:focus-visible {
+    color: var(--c64-text);
+    text-decoration: underline;
+}
+
 /* ── Main Layout ─────────────────────────────────────────────────── */
 
 .app-layout {
