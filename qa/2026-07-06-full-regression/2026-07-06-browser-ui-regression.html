@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<title>C64 Boot Screen Editor browser QA</title>
+<style>
+body { font: 14px monospace; background: #111; color: #ddd; white-space: pre-wrap; }
+.pass { color: #7fda7f; } .fail { color: #ff7777; }
+iframe { position: fixed; left: -10000px; width: 1440px; height: 1000px; }
+</style>
+<h1>C64 Boot Screen Editor browser QA</h1>
+<div id="results">Running…</div>
+<iframe id="app-frame" src="/"></iframe>
+<script>
+const results = [];
+const failures = [];
+function record(name, ok, detail = '') {
+    results.push({ name, ok, detail });
+    if (!ok) failures.push(name);
+}
+async function test(name, fn) {
+    try {
+        await fn();
+        record(name, true);
+    } catch (error) {
+        record(name, false, error && error.message ? error.message : String(error));
+    }
+}
+function assert(value, message) {
+    if (!value) throw new Error(message);
+}
+function equalArrays(a, b) {
+    return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
+document.getElementById('app-frame').addEventListener('load', async (event) => {
+    const win = event.target.contentWindow;
+    const doc = event.target.contentDocument;
+    const app = win.app;
+
+    await test('Application initializes', () => assert(app && app.editor && app.patcher, 'window.app missing'));
+    await test('All primary UI controls exist', () => {
+        [
+            'c64-canvas', 'tool-draw', 'tool-erase', 'tool-fill', 'tool-text',
+            'tool-colorpaint', 'tool-line', 'tool-rect', 'tool-select',
+            'btn-copy', 'btn-cut', 'btn-paste', 'btn-preview-screen',
+            'preview-dialog', 'btn-download-prg', 'btn-download-seq'
+        ].forEach(id => assert(doc.getElementById(id), `Missing #${id}`));
+    });
+    await test('Default template renders', () => {
+        assert(app.editor.screenData.some(code => code !== 32), 'Default screen is blank');
+        assert(app.editor.canvas.width > 0 && app.editor.canvas.height > 0, 'Canvas has no dimensions');
+    });
+    await test('All templates load', () => {
+        const buttons = [...doc.querySelectorAll('.template-btn')];
+        assert(buttons.length >= 10, 'Unexpectedly few template buttons');
+        buttons.forEach(button => button.click());
+        assert(app.editor.screenData.length === 1000, 'Template changed screen dimensions');
+    });
+    await test('Drawing, erase and undo/redo', () => {
+        const editor = app.editor;
+        const cell = { idx: 0, col: 0, row: 0 };
+        editor.currentChar = 1;
+        editor.currentColor = 2;
+        editor._saveUndo();
+        editor._drawCell(cell);
+        assert(editor.screenData[0] === 1 && editor.colorData[0] === 2, 'Draw failed');
+        editor._saveUndo();
+        editor._eraseCell(cell);
+        assert(editor.screenData[0] === 32, 'Erase failed');
+        editor.undo();
+        assert(editor.screenData[0] === 1, 'Undo failed');
+        editor.redo();
+        assert(editor.screenData[0] === 32, 'Redo failed');
+    });
+    await test('Flood fill changes connected cells', () => {
+        const editor = app.editor;
+        editor.clearScreen();
+        editor.currentChar = 5;
+        editor.currentColor = 3;
+        editor._floodFill({ idx: 0, col: 0, row: 0 });
+        assert(editor.screenData.every(value => value === 5), 'Fill did not cover screen');
+        assert(editor.colorData.every(value => value === 3), 'Fill color mismatch');
+    });
+    await test('Line and rectangle previews stay in bounds', () => {
+        const editor = app.editor;
+        editor.lineStart = { col: 0, row: 0, idx: 0 };
+        editor.currentTool = 'line';
+        editor._updatePreview({ col: 39, row: 24, idx: 999 });
+        assert(editor.previewOverlay.every(p => p.idx >= 0 && p.idx < 1000), 'Line out of bounds');
+        editor.currentTool = 'rect';
+        editor._updatePreview({ col: 39, row: 24, idx: 999 });
+        assert(editor.previewOverlay.every(p => p.idx >= 0 && p.idx < 1000), 'Rectangle out of bounds');
+    });
+    await test('Selection copy/cut/paste/move preserves characters and colors', () => {
+        const editor = app.editor;
+        editor.clearScreen();
+        editor.screenData[0] = 65;
+        editor.screenData[1] = 66;
+        editor.colorData[0] = 2;
+        editor.colorData[1] = 5;
+        editor.selection = { x0: 0, y0: 0, x1: 1, y1: 0 };
+        assert(editor.copySelection(), 'Copy returned false');
+        editor.cutSelection();
+        assert(editor.screenData[0] === 32 && editor.screenData[1] === 32, 'Cut did not clear');
+        editor.selection = { x0: 4, y0: 4, x1: 4, y1: 4 };
+        editor.pasteSelection();
+        const target = 4 * 40 + 4;
+        assert(editor.screenData[target] === 65 && editor.screenData[target + 1] === 66, 'Paste data mismatch');
+        assert(editor.colorData[target] === 2 && editor.colorData[target + 1] === 5, 'Paste colors mismatch');
+        editor.moveSelection(1, 1);
+        const moved = 5 * 40 + 5;
+        assert(editor.screenData[moved] === 65 && editor.screenData[moved + 1] === 66, 'Move mismatch');
+        assert(editor.screenData[target] === 32, 'Move did not clear source');
+    });
+    await test('Selection rejects movement beyond screen', () => {
+        const editor = app.editor;
+        editor.selection = { x0: 39, y0: 24, x1: 39, y1: 24 };
+        editor.screenData[999] = 77;
+        editor.moveSelection(1, 0);
+        assert(editor.selection.x0 === 39 && editor.screenData[999] === 77, 'Out-of-bounds move was allowed');
+    });
+    await test('Keyboard shortcuts select tools', () => {
+        doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 's', bubbles: true }));
+        assert(app.editor.currentTool === 'select', 'S shortcut failed');
+        doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'd', bubbles: true }));
+        assert(app.editor.currentTool === 'draw', 'D shortcut failed');
+    });
+    await test('Black is retained as a valid color', () => {
+        const editor = app.editor;
+        editor.borderColor = 0;
+        editor.bgColor = 0;
+        editor.currentColor = 0;
+        editor.render();
+        assert(editor.borderColor === 0 && editor.bgColor === 0 && editor.currentColor === 0, 'Black replaced');
+    });
+    await test('JSON export/import round-trip', () => {
+        const state = app.editor.getScreenState();
+        const json = app.patcher.exportJSON(state);
+        const imported = app.patcher.importJSON(json);
+        assert(equalArrays(imported.screen, state.screen), 'JSON screen mismatch');
+        assert(equalArrays(imported.color, state.color), 'JSON color mismatch');
+        assert(imported.borderColor === state.borderColor && imported.bgColor === state.bgColor, 'JSON colors mismatch');
+    });
+    await test('Invalid JSON is rejected', () => {
+        let rejected = false;
+        try { app.patcher.importJSON('{"screen":[1]}'); } catch (_) { rejected = true; }
+        assert(rejected, 'Invalid JSON accepted');
+    });
+    await test('PRG export/import trailer round-trip', () => {
+        const state = app.editor.getScreenState();
+        const prg = app.patcher._exportPRG(state);
+        const imported = app.patcher._readPrgTrailer(prg);
+        assert(imported, 'PRG trailer missing');
+        assert(equalArrays(imported.screen, state.screen), 'PRG screen mismatch');
+        assert(equalArrays(imported.color, state.color), 'PRG color mismatch');
+    });
+    await test('PRG FileReader import round-trip', async () => {
+        const state = app.editor.getScreenState();
+        const bytes = app.patcher._exportPRG(state);
+        const file = new win.File([bytes], 'roundtrip.prg', { type: 'application/octet-stream' });
+        const imported = await app.patcher.importPRG(file);
+        assert(equalArrays(imported.screen, state.screen), 'Imported PRG screen mismatch');
+        assert(equalArrays(imported.color, state.color), 'Imported PRG color mismatch');
+    });
+    await test('SEQ export has screen and color RAM', () => {
+        const seq = app.patcher.exportSEQ(app.editor.getScreenState());
+        assert(seq.length === 2000, `SEQ length ${seq.length}, expected 2000`);
+    });
+    await test('SEQ FileReader import round-trip', async () => {
+        const state = app.editor.getScreenState();
+        const bytes = app.patcher.exportSEQ(state);
+        const file = new win.File([bytes], 'roundtrip.seq', { type: 'application/octet-stream' });
+        const imported = await app.patcher.importSEQ(file);
+        assert(equalArrays(imported.screen, state.screen), 'Imported SEQ screen mismatch');
+        assert(equalArrays(imported.color, state.color), 'Imported SEQ color mismatch');
+    });
+    await test('Simple and extended KERNAL patches retain 8 KB size', () => {
+        const rom = new Uint8Array(8192);
+        [0x1FFA, 0x1FFC, 0x1FFE].forEach(offset => {
+            rom[offset] = 0x00;
+            rom[offset + 1] = 0xE0;
+        });
+        rom[1141 + 37 - 2] = 0x0D;
+        rom[1141 + 37 - 1] = 0x0D;
+        rom.set([0x20, 0x22, 0xE4], 0x039A);
+        app.patcher._validateKernalROM(rom);
+        app.patcher.romData = rom;
+        const simple = app.patcher.patchSimple('QA TEST', 'READY', 0, 6, 14);
+        const extended = app.patcher.patchExtended(app.editor.getScreenState());
+        assert(simple.length === 8192, `Simple ROM size ${simple.length}`);
+        assert(extended.length === 8192, `Extended ROM size ${extended.length}`);
+    });
+    await test('Live preview opens and copies canvas', () => {
+        doc.getElementById('btn-preview-screen').click();
+        const dialog = doc.getElementById('preview-dialog');
+        const canvas = doc.getElementById('preview-canvas');
+        assert(dialog.open, 'Preview dialog did not open');
+        assert(canvas.width === app.editor.canvas.width && canvas.height === app.editor.canvas.height, 'Preview size mismatch');
+        dialog.close();
+    });
+    await test('Row insert/delete maintain screen size', () => {
+        const editor = app.editor;
+        editor.insertRow(0);
+        editor.deleteRow(0);
+        assert(editor.screenData.length === 1000 && editor.colorData.length === 1000, 'Screen size changed');
+    });
+
+    const output = results.map(result =>
+        `<div class="${result.ok ? 'pass' : 'fail'}">${result.ok ? 'PASS' : 'FAIL'} ${result.name}${result.detail ? ` — ${result.detail}` : ''}</div>`
+    ).join('');
+    document.getElementById('results').innerHTML =
+        `${output}<p id="qa-summary" data-failures="${failures.length}">RESULT ${results.length - failures.length}/${results.length} passed; ${failures.length} failed</p>`;
+    document.title = failures.length ? 'QA FAILED' : 'QA PASSED';
+});
+</script>
+</html>

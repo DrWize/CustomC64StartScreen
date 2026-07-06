@@ -25,6 +25,11 @@ __pycache__
 # Logs
 *.log
 
+# Local browser QA artifacts
+.qa-chrome*
+qa-browser-*.txt
+qa-browser-*.png
+
 # Build artifacts
 *.bin
 *.prg

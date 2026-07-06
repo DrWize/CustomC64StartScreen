@@ -15,7 +15,7 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
 ## Setup
 
 1. Clone this repo
-2. **Download the font files** - see [Font Files](#font-files-required) below. The font library will not work without them.
+2. Run `download-fonts.ps1` on Windows or `download-fonts.sh` on Linux/macOS to populate the optional font library.
 3. Open `index.html` in your browser — or use the included server script for the font library
 
 The editor works directly from the filesystem (`file://`), but the **font library** needs a local server to scan the `fonts/` directory. 
@@ -160,10 +160,23 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
 | C | Color paint |
 | L | Line |
 | R | Rectangle |
+| S | Select area |
 | G | Toggle grid |
+| Arrow keys | Move selection |
+| Ctrl+C / Ctrl+X / Ctrl+V | Copy / cut / paste selection |
 | Ctrl+Z | Undo |
 | Ctrl+Y | Redo |
 | Right-click | Pick char + color from screen |
+
+## Typical workflow
+
+1. Choose a template, import a design, or start with a blank screen.
+2. Draw with the tool palette and use Select to copy, cut, paste, or move areas.
+3. Optionally choose a character ROM or edit individual 8x8 glyphs in the Chargen tab.
+4. Use Live Preview while designing.
+5. Export JSON for later editing, PRG for VICE/real-hardware preview, or patch a compatible KERNAL ROM.
+
+If the font library is empty, run one of the local server options above and refresh. Direct `file://` use cannot scan the `fonts/` directory.
 
 ## Developer Functionality
 
