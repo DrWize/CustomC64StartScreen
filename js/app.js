@@ -24,6 +24,7 @@ class App {
         this._setupStatusBar();
         this._setupKeyboard();
         this._setupTabs();
+        this._setupPreview();
 
         // Load default template
         this._loadTemplate(Templates.getAll()[0]);
@@ -54,10 +55,32 @@ class App {
         });
     }
 
+    _setupPreview() {
+        const dialog = document.getElementById('preview-dialog');
+        const preview = document.getElementById('preview-canvas');
+        const refresh = () => {
+            preview.width = this.editor.canvas.width;
+            preview.height = this.editor.canvas.height;
+            preview.getContext('2d').drawImage(this.editor.canvas, 0, 0);
+        };
+        document.getElementById('btn-preview-screen')?.addEventListener('click', () => {
+            refresh();
+            if (dialog.showModal) dialog.showModal();
+            else dialog.setAttribute('open', '');
+        });
+        document.getElementById('btn-close-preview')?.addEventListener('click', () => dialog.close());
+        document.getElementById('btn-preview-prg')?.addEventListener('click', () => {
+            this.patcher.downloadPRG(
+                this.editor.getScreenState(),
+                `bootscreen-preview-${this._getTimestamp()}.prg`
+            );
+        });
+    }
+
     // ── Toolbar ─────────────────────────────────────────────────────────
 
     _setupToolbar() {
-        const tools = ['draw', 'erase', 'fill', 'text', 'colorpaint', 'line', 'rect'];
+        const tools = ['draw', 'erase', 'fill', 'text', 'colorpaint', 'line', 'rect', 'select'];
         tools.forEach(tool => {
             const btn = document.getElementById('tool-' + tool);
             if (btn) {
@@ -72,6 +95,9 @@ class App {
 
         document.getElementById('btn-undo')?.addEventListener('click', () => this.editor.undo());
         document.getElementById('btn-redo')?.addEventListener('click', () => this.editor.redo());
+        document.getElementById('btn-copy')?.addEventListener('click', () => this.editor.copySelection());
+        document.getElementById('btn-cut')?.addEventListener('click', () => this.editor.cutSelection());
+        document.getElementById('btn-paste')?.addEventListener('click', () => this.editor.pasteSelection());
         document.getElementById('btn-clear')?.addEventListener('click', () => {
             if (confirm('Clear the entire screen?')) {
                 this.editor._saveUndo();
@@ -637,7 +663,7 @@ class App {
             this._lastHoverRow = row;
             const status = document.getElementById('status-bar');
             if (status) {
-                status.textContent = `Col: ${col}  Row: ${row}  Char: ${sc} ($${sc.toString(16).padStart(2, '0').toUpperCase()})  Color: ${colorIdx} (${C64.COLORS[colorIdx].name})`;
+                status.textContent = `Col: ${col}  Row: ${row}  Char: ${sc} ($${sc.toString(16).padStart(2, '0').toUpperCase()})  Color: ${colorIdx} (${C64.COLORS[colorIdx].name})  | Row op target: ${row}`;
             }
         };
 
@@ -678,6 +704,18 @@ class App {
                         e.preventDefault();
                         this.editor.redo();
                         break;
+                    case 'c':
+                        e.preventDefault();
+                        this.editor.copySelection();
+                        break;
+                    case 'x':
+                        e.preventDefault();
+                        this.editor.cutSelection();
+                        break;
+                    case 'v':
+                        e.preventDefault();
+                        this.editor.pasteSelection();
+                        break;
                 }
                 return;
             }
@@ -690,6 +728,11 @@ class App {
                 case 'c': this.editor.currentTool = 'colorpaint'; break;
                 case 'l': this.editor.currentTool = 'line'; break;
                 case 'r': this.editor.currentTool = 'rect'; break;
+                case 's': this.editor.currentTool = 'select'; break;
+                case 'arrowleft': e.preventDefault(); this.editor.moveSelection(-1, 0); return;
+                case 'arrowright': e.preventDefault(); this.editor.moveSelection(1, 0); return;
+                case 'arrowup': e.preventDefault(); this.editor.moveSelection(0, -1); return;
+                case 'arrowdown': e.preventDefault(); this.editor.moveSelection(0, 1); return;
                 case 'g':
                     this.editor.showGrid = !this.editor.showGrid;
                     document.getElementById('btn-grid')?.classList.toggle('active', this.editor.showGrid);

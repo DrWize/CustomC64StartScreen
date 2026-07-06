@@ -49,6 +49,12 @@
                 <button class="tool-btn" id="tool-colorpaint" title="Color Paint (C)">Color</button>
                 <button class="tool-btn" id="tool-line" title="Line (L)">Line</button>
                 <button class="tool-btn" id="tool-rect" title="Rectangle (R)">Rect</button>
+                <button class="tool-btn" id="tool-select" title="Select an area (S)">Select</button>
+            </div>
+            <div class="toolbar-group">
+                <button class="action-btn" id="btn-copy" title="Copy selection (Ctrl+C)">Copy</button>
+                <button class="action-btn" id="btn-cut" title="Cut selection (Ctrl+X)">Cut</button>
+                <button class="action-btn" id="btn-paste" title="Paste selection (Ctrl+V)">Paste</button>
             </div>
             <div class="toolbar-group">
                 <button class="action-btn" id="btn-undo" title="Undo (Ctrl+Z)">Undo</button>
@@ -99,9 +105,9 @@
         <!-- Keyboard Shortcuts -->
         <div class="shortcuts-help">
             <kbd>D</kbd>raw <kbd>E</kbd>rase <kbd>F</kbd>ill <kbd>T</kbd>ext
-            <kbd>C</kbd>olor <kbd>L</kbd>ine <kbd>R</kbd>ect <kbd>G</kbd>rid
+            <kbd>C</kbd>olor <kbd>L</kbd>ine <kbd>R</kbd>ect <kbd>S</kbd>elect <kbd>G</kbd>rid
             <br>
-            <kbd>Ctrl+Z</kbd> Undo <kbd>Ctrl+Y</kbd> Redo
+            <kbd>Ctrl+C/X/V</kbd> Copy/Cut/Paste <kbd>Arrows</kbd> Move
             <br>
             Right-click: pick char+color from screen
         </div>
@@ -266,6 +272,7 @@
             <div class="panel-section">
                 <h3>Export Boot Screen</h3>
                 <div class="btn-group">
+                    <button class="btn-primary" id="btn-preview-screen">Live Preview</button>
                     <button class="btn-primary" id="btn-download-prg">Download .PRG</button>
                     <button class="btn-primary" id="btn-download-seq">Download .SEQ</button>
                 </div>
@@ -293,6 +300,18 @@
         </div>
     </div>
 </div>
+
+<dialog id="preview-dialog" class="preview-dialog">
+    <div class="preview-header">
+        <strong>C64 Live Preview</strong>
+        <button class="action-btn" id="btn-close-preview">Close</button>
+    </div>
+    <div class="crt-preview">
+        <canvas id="preview-canvas"></canvas>
+    </div>
+    <p>Exact screen data preview. Download the PRG below to run it in VICE or on a C64.</p>
+    <button class="btn-primary" id="btn-preview-prg">Download emulator-ready .PRG</button>
+</dialog>
 
 <!-- Scripts (order matters) -->
 <script>

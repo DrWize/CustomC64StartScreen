@@ -538,3 +538,29 @@ input[type="file"].hidden {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--c64-accent);
 }
+/* Full-size output preview with a subtle CRT treatment. */
+.preview-dialog {
+    max-width: min(94vw, 1100px);
+    border: 2px solid var(--c64-border, #867ade);
+    background: #171421;
+    color: #ddd;
+    padding: 16px;
+}
+.preview-dialog::backdrop { background: rgba(0, 0, 0, .78); }
+.preview-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.crt-preview {
+    position: relative;
+    overflow: hidden;
+    background: #111;
+    border: 18px solid #29262d;
+    border-radius: 18px;
+    box-shadow: inset 0 0 28px #000, 0 10px 35px #000;
+}
+.crt-preview::after {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0 2px, transparent 2px 4px);
+}
+#preview-canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }

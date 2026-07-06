@@ -31,10 +31,14 @@ class ScreenEditor {
         this.isDrawing = false;
         this.textCursorPos = -1;
         this.showGrid = false;
+        this.hoverRow = null;
 
         // Line/rect tool state
         this.lineStart = null;
         this.previewOverlay = null;
+        this.selection = null;
+        this.selectionStart = null;
+        this.clipboard = null;
 
         // Undo/redo
         this.undoStack = [];
@@ -66,7 +70,13 @@ class ScreenEditor {
         this.canvas.addEventListener('mousedown', (e) => this._onMouseDown(e));
         this.canvas.addEventListener('mousemove', (e) => this._onMouseMove(e));
         this.canvas.addEventListener('mouseup', () => this._onMouseUp());
-        this.canvas.addEventListener('mouseleave', () => this._onMouseUp());
+        this.canvas.addEventListener('mouseleave', () => {
+            this._onMouseUp();
+            if (this.hoverRow !== null) {
+                this.hoverRow = null;
+                this.render();
+            }
+        });
         this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 
         document.addEventListener('keydown', (e) => {
@@ -93,6 +103,11 @@ class ScreenEditor {
     _onMouseDown(e) {
         const cell = this._getCellFromMouse(e);
         if (!cell) return;
+
+        if (this.hoverRow !== cell.row) {
+            this.hoverRow = cell.row;
+            this.render();
+        }
 
         // Update hover position on click too (for row operations)
         if (this.onCellHover) {
@@ -136,6 +151,12 @@ class ScreenEditor {
                 this.lineStart = cell;
                 this.previewOverlay = null;
                 break;
+            case 'select':
+                this.isDrawing = true;
+                this.selectionStart = cell;
+                this.selection = { x0: cell.col, y0: cell.row, x1: cell.col, y1: cell.row };
+                this.render();
+                break;
         }
     }
 
@@ -143,6 +164,11 @@ class ScreenEditor {
         const cell = this._getCellFromMouse(e);
         if (this.onCellHover && cell) {
             this.onCellHover(cell.col, cell.row, this.screenData[cell.idx], this.colorData[cell.idx]);
+        }
+
+        if (cell && this.hoverRow !== cell.row) {
+            this.hoverRow = cell.row;
+            this.render();
         }
 
         if (!this.isDrawing || !cell) return;
@@ -162,6 +188,15 @@ class ScreenEditor {
             case 'rect':
                 this._updatePreview(cell);
                 break;
+            case 'select':
+                this.selection = {
+                    x0: Math.min(this.selectionStart.col, cell.col),
+                    y0: Math.min(this.selectionStart.row, cell.row),
+                    x1: Math.max(this.selectionStart.col, cell.col),
+                    y1: Math.max(this.selectionStart.row, cell.row)
+                };
+                this.render();
+                break;
         }
     }
 
@@ -180,6 +215,88 @@ class ScreenEditor {
         }
 
         this.isDrawing = false;
+    }
+
+    copySelection() {
+        if (!this.selection) return false;
+        const { x0, y0, x1, y1 } = this.selection;
+        const width = x1 - x0 + 1;
+        const height = y1 - y0 + 1;
+        const screen = new Uint8Array(width * height);
+        const color = new Uint8Array(width * height);
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const src = (y0 + y) * C64.SCREEN_COLS + x0 + x;
+                const dst = y * width + x;
+                screen[dst] = this.screenData[src];
+                color[dst] = this.colorData[src];
+            }
+        }
+        this.clipboard = { width, height, screen, color };
+        return true;
+    }
+
+    cutSelection() {
+        if (!this.copySelection()) return;
+        this._saveUndo();
+        const { x0, y0, x1, y1 } = this.selection;
+        for (let y = y0; y <= y1; y++) {
+            for (let x = x0; x <= x1; x++) {
+                const idx = y * C64.SCREEN_COLS + x;
+                this.screenData[idx] = C64.SCREEN_CODE_SPACE;
+                this.colorData[idx] = this.defaultTextColor;
+            }
+        }
+        this.render();
+    }
+
+    pasteSelection() {
+        if (!this.clipboard) return;
+        const x0 = this.selection ? this.selection.x0 : 0;
+        const y0 = this.selection ? this.selection.y0 : 0;
+        this._saveUndo();
+        for (let y = 0; y < this.clipboard.height && y0 + y < C64.SCREEN_ROWS; y++) {
+            for (let x = 0; x < this.clipboard.width && x0 + x < C64.SCREEN_COLS; x++) {
+                const src = y * this.clipboard.width + x;
+                const dst = (y0 + y) * C64.SCREEN_COLS + x0 + x;
+                this.screenData[dst] = this.clipboard.screen[src];
+                this.colorData[dst] = this.clipboard.color[src];
+            }
+        }
+        this.selection = {
+            x0, y0,
+            x1: Math.min(C64.SCREEN_COLS - 1, x0 + this.clipboard.width - 1),
+            y1: Math.min(C64.SCREEN_ROWS - 1, y0 + this.clipboard.height - 1)
+        };
+        this.render();
+    }
+
+    moveSelection(dx, dy) {
+        if (!this.selection) return;
+        const { x0, y0, x1, y1 } = this.selection;
+        const nx = x0 + dx;
+        const ny = y0 + dy;
+        if (nx < 0 || ny < 0 || x1 + dx >= C64.SCREEN_COLS || y1 + dy >= C64.SCREEN_ROWS) return;
+        this.copySelection();
+        this._saveUndo();
+        for (let y = y0; y <= y1; y++) {
+            for (let x = x0; x <= x1; x++) {
+                const idx = y * C64.SCREEN_COLS + x;
+                this.screenData[idx] = C64.SCREEN_CODE_SPACE;
+                this.colorData[idx] = this.defaultTextColor;
+            }
+        }
+        this.selection = { x0: nx, y0: ny, x1: x1 + dx, y1: y1 + dy };
+        const clip = this.clipboard;
+        for (let y = 0; y < clip.height; y++) {
+            for (let x = 0; x < clip.width; x++) {
+                const src = y * clip.width + x;
+                const dst = (ny + y) * C64.SCREEN_COLS + nx + x;
+                this.screenData[dst] = clip.screen[src];
+                this.colorData[dst] = clip.color[src];
+            }
+        }
+        this.render();
     }
 
     _drawCell(cell) {
@@ -536,6 +653,12 @@ class ScreenEditor {
         ctx.fillStyle = C64.COLORS[bgColorSafe].hex;
         ctx.fillRect(bs, bs, C64.SCREEN_COLS * bw, C64.SCREEN_ROWS * bh);
 
+        // Highlight hovered row for row operations
+        if (this.hoverRow !== null) {
+            ctx.fillStyle = 'rgba(255,255,255,0.12)';
+            ctx.fillRect(bs, bs + this.hoverRow * bh, C64.SCREEN_COLS * bw, bh);
+        }
+
         // Draw each character cell
         const charsetOffset = this.charSet * C64.CHARSET_HALF;
         const bgCol = C64.COLORS[Math.min(this.bgColor || 0, C64.COLORS.length - 1)];
@@ -578,6 +701,21 @@ class ScreenEditor {
             const cursorColorSafe = Math.min((this.currentColor || 0) & 0x0F, C64.COLORS.length - 1);
             ctx.fillStyle = C64.COLORS[cursorColorSafe].hex;
             ctx.fillRect(x, y, bw, bh);
+        }
+
+        if (this.selection) {
+            const { x0, y0, x1, y1 } = this.selection;
+            ctx.save();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([6, 4]);
+            ctx.strokeRect(
+                bs + x0 * bw + 1,
+                bs + y0 * bh + 1,
+                (x1 - x0 + 1) * bw - 2,
+                (y1 - y0 + 1) * bh - 2
+            );
+            ctx.restore();
         }
 
         // Draw grid overlay
