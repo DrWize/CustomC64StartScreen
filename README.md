@@ -18,6 +18,10 @@ A browser-based tool for designing custom Commodore 64 startup screens. Draw PET
 2. Run `download-fonts.ps1` on Windows or `download-fonts.sh` on Linux/macOS to populate the optional font library.
 3. Open `index.html` in your browser — or use the included server script for the font library
 
+To download all optional local dependencies in one go, including fonts, ROM
+manifests, and the portable VICE emulator, see [DEPENDENCIES.md](DEPENDENCIES.md)
+or run `download-dependencies.ps1` / `download-dependencies.sh`.
+
 The editor works directly from the filesystem (`file://`), but the **font library** needs a local server to scan the `fonts/` directory. 
 
 ### Option 1: Docker (Recommended)
