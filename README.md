@@ -121,11 +121,16 @@ Then open http://localhost:8064 (pass a different port as an argument if needed)
 ### ROM Patching
 - **Simple mode**: change startup text (Line 1 + Line 2) and colors in the KERNAL ROM
 - **Extended mode**: inject a full PETSCII boot screen into the KERNAL ROM using RLE-compressed 6502 machine code
-  - Overwrites RS-232 NMI/Tx/Rx routines at `$EEBB`-`$F0BC` (safe for users who don't use the serial port for RS-232)
+  - Overwrites the standard RS-232 NMI/Tx/Rx area at `$EEBB`-`$F0BC`
   - Hooks into the KERNAL startup at `$E39A`, replacing the banner print routine
   - Auto-detects cursor position: BASIC's "READY." prompt lands 2 rows below your design
   - Sets text color for READY. to match your design's dominant color
   - Jumps to BASIC warm start (`$A644`) for normal input loop
+- **ROM recognition**: uploaded KERNALs are fingerprinted with CRC32 and matched against the known compatibility list
+  - Known standard C64 rev. 1/2/3 KERNALs are marked safe for simple and extended mode
+  - Known DolphinDOS/DolphinDOS2 KERNALs allow simple mode but block extended mode because their fastload code uses `$EEBB`-`$F0BC`
+  - Known localized or less-tested KERNALs show a VICE-test warning before extended patching
+  - Unknown KERNALs show a visible warning with their CRC32; extended mode requires confirmation or is blocked if the standard `$E39A` hook is missing
 - **Timestamped exports**: All downloads (KERNAL ROM, .PRG, .SEQ, .JSON, Chargen ROM) now include date/time in filenames for automatic uniqueness (e.g., `kernal-extended-2026-06-15T12-30-45.bin`, `bootscreen-2026-06-15T12-30-45.prg`)
 - **Status bar** shows where the cursor/READY. will appear after boot
 

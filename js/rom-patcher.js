@@ -9,8 +9,31 @@ class RomPatcher {
     constructor() {
         this.romData = null;      // Uint8Array of KERNAL ROM
         this.romFileName = '';
+        this.romProfile = null;
         this.chargenData = null;  // Uint8Array of chargen ROM
         this.chargenFileName = '';
+    }
+
+    static get ROM_PROFILES() {
+        return {
+            DCE782FA: { name: 'Standard C64 KERNAL revision 1', family: 'commodore', simple: 'safe', extended: 'safe' },
+            A5C687B3: { name: 'Standard C64 KERNAL revision 2', family: 'commodore', simple: 'safe', extended: 'safe' },
+            DBE3E7C7: { name: 'Standard C64 KERNAL revision 3', family: 'commodore', simple: 'safe', extended: 'safe' },
+            '3A9EF6F1': { name: 'Japanese C64 KERNAL', family: 'commodore-localized', simple: 'likely', extended: 'test', warning: 'Use the matching Japanese chargen ROM.' },
+            '2C5965D4': { name: 'SX-64 KERNAL', family: 'commodore', simple: 'likely', extended: 'test' },
+            '505365D4': { name: 'C64 Games System KERNAL', family: 'commodore', simple: 'likely', extended: 'test' },
+            '789C8CC5': { name: 'Educator 64 / Commodore 4064 KERNAL', family: 'commodore', simple: 'likely', extended: 'test' },
+            '8F294C51': { name: 'Swedish C64 KERNAL 325017-02', family: 'localized', simple: 'likely', extended: 'test', warning: 'Use the matching Swedish chargen ROM for ÅÄÖ glyphs.' },
+            F10C2C25: { name: 'Swedish/Finnish C64 KERNAL C2D007', family: 'localized', simple: 'likely', extended: 'test', warning: 'Use the matching Swedish/Finnish chargen ROM for ÅÄÖ glyphs.' },
+            '1DC8A998': { name: 'Danish C64 KERNAL 901227-03-DK', family: 'localized', simple: 'likely', extended: 'test', warning: 'Use the matching Danish chargen ROM.' },
+            '2498254F': { name: 'DolphinDOS2 1.3 KERNAL', family: 'dolphindos', simple: 'likely', extended: 'blocked', warning: 'Extended mode would overwrite DolphinDOS fastload code at $EEBB-$F0BC.' },
+            C9BB21BC: { name: 'DolphinDOS 1.0 KERNAL variant', family: 'dolphindos', simple: 'likely', extended: 'blocked', warning: 'Extended mode may overwrite DolphinDOS fastload code at $EEBB-$F0BC.' },
+            '7068BBCC': { name: 'DolphinDOS 2.0 AU KERNAL variant', family: 'dolphindos', simple: 'likely', extended: 'blocked', warning: 'Extended mode may overwrite DolphinDOS fastload code at $EEBB-$F0BC.' },
+            C9C4C44E: { name: 'DolphinDOS 2.0 KERNAL variant 1', family: 'dolphindos', simple: 'likely', extended: 'blocked', warning: 'Extended mode may overwrite DolphinDOS fastload code at $EEBB-$F0BC.' },
+            FFAEB9BC: { name: 'DolphinDOS 2.0 KERNAL variant 2', family: 'dolphindos', simple: 'likely', extended: 'blocked', warning: 'Extended mode may overwrite DolphinDOS fastload code at $EEBB-$F0BC.' },
+            '4FD511F2': { name: 'DolphinDOS 2.0 KERNAL variant 3', family: 'dolphindos', simple: 'likely', extended: 'blocked', warning: 'Extended mode may overwrite DolphinDOS fastload code at $EEBB-$F0BC.' },
+            '5402D643': { name: 'DolphinDOS 3.0 KERNAL', family: 'dolphindos', simple: 'likely', extended: 'blocked', warning: 'Extended mode may overwrite DolphinDOS fastload code at $EEBB-$F0BC.' },
+        };
     }
 
     // ── ROM Loading ─────────────────────────────────────────────────────
@@ -37,11 +60,54 @@ class RomPatcher {
                 }
                 this.romData = data;
                 this.romFileName = file.name;
+                this.romProfile = this._identifyKernalROM(data);
                 resolve(this._readRomInfo());
             };
             reader.onerror = () => reject(new Error('Failed to read ROM file'));
             reader.readAsArrayBuffer(file);
         });
+    }
+
+    _crc32(bytes) {
+        let crc = 0xFFFFFFFF;
+        for (let i = 0; i < bytes.length; i++) {
+            crc ^= bytes[i];
+            for (let bit = 0; bit < 8; bit++) {
+                crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
+            }
+        }
+        return ((crc ^ 0xFFFFFFFF) >>> 0).toString(16).toUpperCase().padStart(8, '0');
+    }
+
+    _identifyKernalROM(rom) {
+        const crc32 = this._crc32(rom);
+        const profile = RomPatcher.ROM_PROFILES[crc32];
+        const extendedAlreadyPatched = rom[0x039A] === 0x20 && rom[0x039B] === 0xBB && rom[0x039C] === 0xEE;
+        const standardExtendedHook = rom[0x039A] === 0x20 && rom[0x039B] === 0x22 && rom[0x039C] === 0xE4;
+
+        if (profile) {
+            return {
+                crc32,
+                known: true,
+                extendedAlreadyPatched,
+                standardExtendedHook,
+                ...profile,
+            };
+        }
+
+        return {
+            crc32,
+            known: false,
+            name: 'Unknown KERNAL',
+            family: 'unknown',
+            simple: 'warning',
+            extended: standardExtendedHook ? 'warning' : 'blocked',
+            extendedAlreadyPatched,
+            standardExtendedHook,
+            warning: standardExtendedHook
+                ? 'Unknown KERNAL fingerprint. Simple mode may work, but extended mode can overwrite replacement ROM code. Test in VICE before using on hardware.'
+                : 'Unknown KERNAL fingerprint and the standard extended-mode startup hook was not found. Extended mode is blocked.',
+        };
     }
 
     _validateKernalROM(rom) {
@@ -115,6 +181,7 @@ class RomPatcher {
             textColor: rom[C64.ROM.TEXT_COLOR_OFFSET],
             fileName: this.romFileName,
             size: rom.length,
+            profile: this.romProfile,
         };
     }
 
@@ -241,6 +308,9 @@ class RomPatcher {
      */
     patchExtended(screenState) {
         if (!this.romData) throw new Error('No KERNAL ROM loaded');
+        if (this.romProfile?.extended === 'blocked') {
+            throw new Error(`Extended mode is not compatible with ${this.romProfile.name}: ${this.romProfile.warning || 'this KERNAL uses the injection area for other code'}`);
+        }
 
         const rom = new Uint8Array(this.romData); // work on copy
         const { screen, color, borderColor, bgColor } = screenState;

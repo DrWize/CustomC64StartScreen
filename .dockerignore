@@ -34,6 +34,16 @@ qa-browser-*.png
 *.bin
 *.prg
 *.rom
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+
+# Local ROM/emulator downloads
+kernal/**/*.bin
+kernal/**/*.rom
+vice/SDL2VICE-*/
 
 # Docker
 Dockerfile

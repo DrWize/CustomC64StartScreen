@@ -456,6 +456,18 @@ body {
     margin-top: 4px;
 }
 
+.file-info.warning {
+    color: #ffcc00;
+}
+
+.file-info.error {
+    color: #ff7777;
+}
+
+.file-info.ok {
+    color: #7fff7f;
+}
+
 .btn-group {
     display: flex;
     flex-wrap: wrap;

@@ -1,0 +1,23 @@
+# CRC32  relative path
+# Official C64-family ROMs distributed with VICE 3.10
+DCE782FA  official-vice-3.10-c64/kernal-901227-01.bin
+A5C687B3  official-vice-3.10-c64/kernal-901227-02.bin
+DBE3E7C7  official-vice-3.10-c64/kernal-901227-03.bin
+3A9EF6F1  official-vice-3.10-c64/kernal-906145-02.bin
+2C5965D4  official-vice-3.10-c64/kernal-251104-04.bin
+505365D4  official-vice-3.10-c64/kernal-390852-01.bin
+789C8CC5  official-vice-3.10-c64/kernal-901246-01.bin
+EC4272EE  official-vice-3.10-c64/chargen-901225-01.bin
+1604F6C1  official-vice-3.10-c64/chargen-906143-02.bin
+
+# Swedish and Danish localized pairs
+8F294C51  official-swedish-c64/kernal.325017.swedish-02.bin
+377A382B  official-swedish-c64/characters.325018-02.bin
+F10C2C25  official-swedish-c64/kernal.swedish-03.C2D007.bin
+BEE9B3FD  official-swedish-c64/characters.325018-02.C2G007.bin
+1DC8A998  official-swedish-c64/kernal.901227-03-DK.bin
+F649EC3A  official-swedish-c64/characters.901225-01-DK.bin
+
+# donnchawp/DolphinDOS2 release 1.3
+2498254F  dolphindos2-github-1.3/dd2_kernal.rom
+CCF3450E  dolphindos2-github-1.3/dd2_1541.rom

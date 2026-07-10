@@ -3,6 +3,13 @@ fonts/*.bin
 
 # KERNAL ROM files
 kernal/*.bin
+kernal/**/*.bin
+kernal/**/*.rom
+
+# Portable VICE binaries are downloaded locally, not committed.
+/vice/SDL2VICE-*/
+!/vice/README.md
+!/vice/run-with-kernal.cmd
 
 # OS files
 .DS_Store

@@ -335,7 +335,8 @@ class App {
             try {
                 const info = await this.patcher.loadKernalROM(file);
                 document.getElementById('rom-info').textContent =
-                    `Loaded: ${info.fileName} (${info.size} bytes)`;
+                    `Loaded: ${info.fileName} (${info.size} bytes, CRC32 ${info.profile.crc32})`;
+                this._updateRomCompatibilityInfo(info.profile);
                 document.getElementById('rom-loaded').style.display = 'block';
 
                 // Show ROM's current boot screen settings
@@ -473,6 +474,37 @@ class App {
         });
     }
 
+    _updateRomCompatibilityInfo(profile) {
+        const el = document.getElementById('rom-compat-info');
+        if (!el || !profile) return;
+
+        const modeText = {
+            safe: 'safe',
+            likely: 'likely safe',
+            test: 'needs VICE test',
+            warning: 'warning',
+            blocked: 'blocked',
+        };
+
+        const parts = [
+            profile.known ? `Recognised: ${profile.name}` : `Unknown KERNAL fingerprint`,
+            `simple: ${modeText[profile.simple] || profile.simple}`,
+            `extended: ${modeText[profile.extended] || profile.extended}`,
+        ];
+        if (profile.extendedAlreadyPatched) parts.push('already has the extended boot hook');
+        if (profile.warning) parts.push(profile.warning);
+
+        el.textContent = parts.join(' — ');
+        el.classList.remove('ok', 'warning', 'error');
+        if (profile.extended === 'blocked') {
+            el.classList.add('error');
+        } else if (!profile.known || profile.extended === 'warning' || profile.extended === 'test' || profile.simple === 'warning') {
+            el.classList.add('warning');
+        } else {
+            el.classList.add('ok');
+        }
+    }
+
     /**
      * Handles simple ROM patch download.
      * Patches the KERNAL ROM with custom text and colors from the UI inputs.
@@ -512,6 +544,21 @@ class App {
         const state = this.editor.getScreenState();
 
         try {
+            const profile = this.patcher.romProfile;
+            if (profile && !profile.known && profile.extended !== 'blocked') {
+                const proceed = confirm(
+                    `Warning: this KERNAL is unknown (CRC32 ${profile.crc32}).\n\n` +
+                    'Extended mode injects code into $EEBB-$F0BC and may overwrite replacement KERNAL routines.\n\n' +
+                    'Continue anyway? Test the result in VICE before using real hardware.'
+                );
+                if (!proceed) return;
+            } else if (profile && profile.extended === 'test') {
+                const proceed = confirm(
+                    `Warning: ${profile.name} is recognised, but extended mode has not been fully verified for this ROM.\n\n` +
+                    'Continue and test the result in VICE?'
+                );
+                if (!proceed) return;
+            }
             const patched = this.patcher.patchExtended(state);
             this.patcher.downloadROM(patched, `kernal-extended-${this._getTimestamp()}.bin`);
         } catch (err) {
