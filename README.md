@@ -4,6 +4,11 @@
 
 A browser-based tool for designing custom Commodore 64 startup screens. Draw PETSCII art, pick from templates, edit character ROMs, and patch your KERNAL ROM with the result.
 
+> ☕ Enjoying this project? If it brings a little creativity or nostalgia to your
+> day, you can [buy me a coffee](https://buymeacoffee.com/drwize). Every coffee
+> is warmly appreciated and helps me keep building, improving, and sharing my
+> projects—thank you!
+
 ## Screenshots
 
 ![C64 Boot Screen Editor overview](docs/screenshots/editor-overview.png)
